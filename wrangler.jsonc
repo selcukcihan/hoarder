@@ -27,7 +27,8 @@
 		{
 			"binding": "DB",
 			"database_name": "hoarder",
-			"database_id": "debe0b9a-a0b4-4f72-9ca3-a9dd8945dfde"
+			"database_id": "debe0b9a-a0b4-4f72-9ca3-a9dd8945dfde",
+			"remote": true
 		}
 	]
 	/**

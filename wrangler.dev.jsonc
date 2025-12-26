@@ -1,0 +1,29 @@
+/**
+ * Development configuration for wrangler
+ * This config omits assets to prevent uploads during local development
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "hoarder",
+	"main": "./dist/_worker.js/index.js",
+	"compatibility_date": "2025-12-25",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"observability": {
+		"enabled": true
+	},
+	/**
+	 * D1 Database Binding with remote access
+	 */
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "hoarder",
+			"database_id": "debe0b9a-a0b4-4f72-9ca3-a9dd8945dfde",
+			"remote": true
+		}
+	]
+}
+

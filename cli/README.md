@@ -1,4 +1,4 @@
-# Link Archive CLI
+# Tech Web Hoarder CLI
 
 CLI tool for ingesting URLs into the link archive database.
 

@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "dev:remote": "astro build && wrangler dev --remote",
+    "dev:remote": "wrangler dev --config wrangler.dev.jsonc",
     "build": "astro build",
     "preview": "astro build && wrangler dev",
     "astro": "astro",
