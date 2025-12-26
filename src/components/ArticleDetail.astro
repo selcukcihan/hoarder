@@ -60,15 +60,6 @@ const { article } = Astro.props;
         </div>
       </section>
     )}
-
-    {article.markdown_content && (
-      <section class="content-section">
-        <h2>Content</h2>
-        <div class="markdown-content">
-          <pre>{article.markdown_content}</pre>
-        </div>
-      </section>
-    )}
   </div>
 
   <nav class="article-nav">
@@ -188,22 +179,6 @@ const { article } = Astro.props;
 
   .transcription p:last-child {
     margin-bottom: 0;
-  }
-
-  .markdown-content {
-    line-height: 1.8;
-  }
-
-  .markdown-content pre {
-    background: #f4f4f4;
-    padding: 1.5rem;
-    border-radius: 4px;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    line-height: 1.6;
   }
 
   .article-nav {
