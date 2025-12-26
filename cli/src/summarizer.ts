@@ -1,15 +1,15 @@
 // Google Gemini API client for summarization
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { Config, Summaries } from './types';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import type { Config, Summaries } from "./types";
 
 export class Summarizer {
   private genAI: GoogleGenerativeAI;
   private model: string;
 
-  constructor(config: Config['gemini']) {
+  constructor(config: Config["gemini"]) {
     this.genAI = new GoogleGenerativeAI(config.apiKey);
-    this.model = config.model || 'gemini-1.5-flash';
+    this.model = config.model || "gemini-3-flash-preview";
   }
 
   /**
@@ -29,12 +29,12 @@ ${content}`;
 
       // Ensure it's within character limit
       if (summary.length > 200) {
-        summary = summary.substring(0, 197) + '...';
+        summary = summary.substring(0, 197) + "...";
       }
 
       return summary;
     } catch (error) {
-      console.error('Error generating short summary:', error);
+      console.error("Error generating short summary:", error);
       throw error;
     }
   }
@@ -54,7 +54,7 @@ ${content}`;
       const response = await result.response;
       return response.text().trim();
     } catch (error) {
-      console.error('Error generating extended summary:', error);
+      console.error("Error generating extended summary:", error);
       throw error;
     }
   }
@@ -71,4 +71,3 @@ ${content}`;
     return { short, extended };
   }
 }
-

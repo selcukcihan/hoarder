@@ -9,21 +9,18 @@ CLI tool for ingesting URLs into the link archive database.
 npm install
 ```
 
-2. Create a `config.json` file (copy from `config.example.json`):
-```bash
-cp config.example.json config.json
-```
+2. Create a `.env` file in the `cli` directory and set these variables:
 
-3. Fill in your API keys and credentials in `config.json`:
-   - Cloudflare Account ID and API Token
-   - Google Gemini API Key
-   - D1 Database ID
+**Required:**
+- `CLOUDFLARE_ACCOUNT_ID` - Your Cloudflare account ID
+- `CLOUDFLARE_API_TOKEN` - Your Cloudflare API token
+- `GEMINI_API_KEY` - Your Google Gemini API key
+- `D1_DATABASE_ID` - Your Cloudflare D1 database ID
 
-Alternatively, you can use environment variables:
-- `CLOUDFLARE_ACCOUNT_ID`
-- `CLOUDFLARE_API_TOKEN`
-- `GEMINI_API_KEY`
-- `D1_DATABASE_ID`
+**Optional:**
+- `CLOUDFLARE_BROWSER_RENDERING_API_URL` - Custom Browser Rendering API URL (if not using default)
+- `GEMINI_MODEL` - Gemini model to use (defaults to `gemini-3-flash-preview`)
+- `YOUTUBE_API_KEY` - YouTube API key for fetching video transcriptions
 
 ## Build
 

@@ -1,5 +1,5 @@
 {
-  "name": "link-archive-cli",
+  "name": "hoarder-cli",
   "version": "1.0.0",
   "type": "module",
   "description": "CLI tool for ingesting links into the archive",
@@ -14,14 +14,16 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "cloudflare": "^5.2.0",
     "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
     "slugify": "^1.6.6",
     "turndown": "^7.2.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
+    "@types/turndown": "^5.0.6",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }
-

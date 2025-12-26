@@ -1,6 +1,16 @@
 // D1 Database client for CLI
 
-import type { Config } from './types';
+import type { Config } from "./types";
+
+interface D1QueryResponse<T = unknown> {
+  result?: Array<{
+    results?: T[];
+    meta?: {
+      last_row_id?: number;
+      changes?: number;
+    };
+  }>;
+}
 
 export class D1Client {
   private accountId: string;
@@ -8,19 +18,22 @@ export class D1Client {
   private apiToken: string;
   private baseUrl: string;
 
-  constructor(config: Config['database']) {
+  constructor(config: Config["database"]) {
     this.accountId = config.accountId;
     this.databaseId = config.databaseId;
     this.apiToken = config.apiToken;
     this.baseUrl = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/d1/database/${this.databaseId}`;
   }
 
-  private async request(endpoint: string, options: RequestInit = {}): Promise<Response> {
+  private async request(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<Response> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${this.apiToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiToken}`,
+        "Content-Type": "application/json",
         ...options.headers,
       },
     });
@@ -37,33 +50,36 @@ export class D1Client {
    * Execute a SQL query
    */
   async query<T = unknown>(sql: string, params: unknown[] = []): Promise<T[]> {
-    const response = await this.request('/query', {
-      method: 'POST',
+    const response = await this.request("/query", {
+      method: "POST",
       body: JSON.stringify({
         sql,
         params,
       }),
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as D1QueryResponse<T>;
     return data.result?.[0]?.results || [];
   }
 
   /**
    * Execute a SQL statement (INSERT, UPDATE, DELETE)
    */
-  async execute(sql: string, params: unknown[] = []): Promise<{ lastInsertRowid: number; changes: number }> {
-    const response = await this.request('/query', {
-      method: 'POST',
+  async execute(
+    sql: string,
+    params: unknown[] = []
+  ): Promise<{ lastInsertRowid: number; changes: number }> {
+    const response = await this.request("/query", {
+      method: "POST",
       body: JSON.stringify({
         sql,
         params,
       }),
     });
 
-    const data = await response.json();
+    const data = (await response.json()) as D1QueryResponse;
     const result = data.result?.[0];
-    
+
     return {
       lastInsertRowid: result?.meta?.last_row_id || 0,
       changes: result?.meta?.changes || 0,
@@ -75,10 +91,10 @@ export class D1Client {
    */
   async slugExists(slug: string): Promise<boolean> {
     const results = await this.query<{ count: number }>(
-      'SELECT COUNT(*) as count FROM articles WHERE slug = ?',
+      "SELECT COUNT(*) as count FROM articles WHERE slug = ?",
       [slug]
     );
-    
+
     return results[0]?.count > 0;
   }
 
@@ -86,7 +102,9 @@ export class D1Client {
    * Get all existing slugs
    */
   async getAllSlugs(): Promise<Set<string>> {
-    const results = await this.query<{ slug: string }>('SELECT slug FROM articles');
+    const results = await this.query<{ slug: string }>(
+      "SELECT slug FROM articles"
+    );
     return new Set(results.map((r) => r.slug));
   }
 
@@ -96,7 +114,7 @@ export class D1Client {
   async getOrCreateTag(tagName: string): Promise<number> {
     // Try to get existing tag
     const existing = await this.query<{ id: number }>(
-      'SELECT id FROM tags WHERE name = ?',
+      "SELECT id FROM tags WHERE name = ?",
       [tagName]
     );
 
@@ -105,7 +123,9 @@ export class D1Client {
     }
 
     // Create new tag
-    const result = await this.execute('INSERT INTO tags (name) VALUES (?)', [tagName]);
+    const result = await this.execute("INSERT INTO tags (name) VALUES (?)", [
+      tagName,
+    ]);
     return result.lastInsertRowid;
   }
 
@@ -152,15 +172,16 @@ export class D1Client {
    */
   async linkArticleToTags(articleId: number, tagIds: number[]): Promise<void> {
     // Remove existing tags
-    await this.execute('DELETE FROM article_tags WHERE article_id = ?', [articleId]);
+    await this.execute("DELETE FROM article_tags WHERE article_id = ?", [
+      articleId,
+    ]);
 
     // Insert new tags
     for (const tagId of tagIds) {
       await this.execute(
-        'INSERT INTO article_tags (article_id, tag_id) VALUES (?, ?)',
+        "INSERT INTO article_tags (article_id, tag_id) VALUES (?, ?)",
         [articleId, tagId]
       );
     }
   }
 }
-

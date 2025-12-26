@@ -348,7 +348,7 @@ src/components/
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "link-archive",
+      "database_name": "hoarder",
       "database_id": "your-database-id"
     }
   ]

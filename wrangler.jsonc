@@ -20,14 +20,14 @@
 	},
 	/**
 	 * D1 Database Binding
-	 * To create a database, run: wrangler d1 create link-archive
+	 * To create a database, run: wrangler d1 create hoarder
 	 * Then update the database_id below
 	 */
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "link-archive",
-			"database_id": "YOUR_DATABASE_ID_HERE"
+			"database_name": "hoarder",
+			"database_id": "debe0b9a-a0b4-4f72-9ca3-a9dd8945dfde"
 		}
 	]
 	/**

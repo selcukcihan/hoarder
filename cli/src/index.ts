@@ -2,59 +2,70 @@
 
 // CLI entry point for link archive ingestion
 
-import { Command } from 'commander';
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { D1Client } from './database.js';
-import { Scraper } from './scraper.js';
-import { Summarizer } from './summarizer.js';
+import { Command } from "commander";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import { D1Client } from "./database.js";
+import { Scraper } from "./scraper.js";
+import { Summarizer } from "./summarizer.js";
 import {
   fetchYouTubeMetadata,
   fetchYouTubeTranscription,
   getVideoDescription,
-} from './youtube.js';
+} from "./youtube.js";
 import {
   generateSlug,
   ensureUniqueSlug,
   getWeekStartDate,
   detectContentType,
-} from './utils.js';
-import type { Config, ArticleData } from './types.js';
+} from "./utils.js";
+import type { Config, ArticleData } from "./types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load configuration
+// Load .env file
+dotenv.config({ path: join(__dirname, "../.env") });
+
+// Load configuration from environment variables
 function loadConfig(): Config {
-  const configPath = process.env.CONFIG_PATH || join(__dirname, '../config.json');
-  
-  try {
-    const configFile = readFileSync(configPath, 'utf-8');
-    const config = JSON.parse(configFile);
-    
-    // Override with environment variables if present
-    return {
-      cloudflare: {
-        accountId: process.env.CLOUDFLARE_ACCOUNT_ID || config.cloudflare.accountId,
-        apiToken: process.env.CLOUDFLARE_API_TOKEN || config.cloudflare.apiToken,
-        browserRenderingApiUrl: config.cloudflare.browserRenderingApiUrl,
-      },
-      gemini: {
-        apiKey: process.env.GEMINI_API_KEY || config.gemini.apiKey,
-        model: config.gemini.model || 'gemini-1.5-flash',
-      },
-      database: {
-        accountId: process.env.CLOUDFLARE_ACCOUNT_ID || config.database.accountId,
-        databaseId: process.env.D1_DATABASE_ID || config.database.databaseId,
-        apiToken: process.env.CLOUDFLARE_API_TOKEN || config.database.apiToken,
-      },
-    };
-  } catch (error) {
-    console.error('Error loading config:', error);
-    console.error('Please create a config.json file or set environment variables.');
+  const requiredEnvVars = {
+    CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    D1_DATABASE_ID: process.env.D1_DATABASE_ID,
+  };
+
+  const missingVars = Object.entries(requiredEnvVars)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingVars.length > 0) {
+    console.error("Error: Missing required environment variables:");
+    missingVars.forEach((varName) => console.error(`  - ${varName}`));
+    console.error(
+      "\nPlease create a .env file in the cli directory with the required variables."
+    );
     process.exit(1);
   }
+
+  return {
+    cloudflare: {
+      accountId: requiredEnvVars.CLOUDFLARE_ACCOUNT_ID!,
+      apiToken: requiredEnvVars.CLOUDFLARE_API_TOKEN!,
+      browserRenderingApiUrl: process.env.CLOUDFLARE_BROWSER_RENDERING_API_URL,
+    },
+    gemini: {
+      apiKey: requiredEnvVars.GEMINI_API_KEY!,
+      model: process.env.GEMINI_MODEL || "gemini-3-flash-preview",
+    },
+    database: {
+      accountId: requiredEnvVars.CLOUDFLARE_ACCOUNT_ID!,
+      databaseId: requiredEnvVars.D1_DATABASE_ID!,
+      apiToken: requiredEnvVars.CLOUDFLARE_API_TOKEN!,
+    },
+  };
 }
 
 // Process a single URL
@@ -81,28 +92,33 @@ async function processUrl(
     let contentForSummary: string;
 
     // Handle YouTube videos separately
-    if (contentType === 'video') {
-      console.log('  Fetching YouTube metadata...');
+    if (contentType === "video") {
+      console.log("  Fetching YouTube metadata...");
       const ytMetadata = await fetchYouTubeMetadata(url);
       title = ytMetadata.title;
       thumbnailUrl = ytMetadata.thumbnailUrl;
 
       // Try to get transcription
-      console.log('  Attempting to fetch transcription...');
+      console.log("  Attempting to fetch transcription...");
       const ytApiKey = process.env.YOUTUBE_API_KEY;
-      transcription = await fetchYouTubeTranscription(ytMetadata.videoId, ytApiKey);
+      transcription = await fetchYouTubeTranscription(
+        ytMetadata.videoId,
+        ytApiKey
+      );
 
       // Use transcription or description for summary
       if (transcription) {
         contentForSummary = transcription;
-        console.log('  Using transcription for summary');
+        console.log("  Using transcription for summary");
       } else {
-        contentForSummary = ytMetadata.description || 'Video content';
-        console.log('  Using video description for summary (transcription unavailable)');
+        contentForSummary = ytMetadata.description || "Video content";
+        console.log(
+          "  Using video description for summary (transcription unavailable)"
+        );
       }
     } else {
       // Scrape regular content
-      console.log('  Scraping content...');
+      console.log("  Scraping content...");
       const scraped = await scraper.scrape(url);
       title = scraped.title;
       thumbnailUrl = scraped.thumbnailUrl;
@@ -110,12 +126,12 @@ async function processUrl(
       contentForSummary = scraped.markdown;
 
       if (!contentForSummary || contentForSummary.trim().length === 0) {
-        throw new Error('No content extracted from URL');
+        throw new Error("No content extracted from URL");
       }
     }
 
     // Generate summaries
-    console.log('  Generating summaries...');
+    console.log("  Generating summaries...");
     const summaries = await summarizer.generateSummaries(contentForSummary);
 
     // Generate slug
@@ -129,7 +145,7 @@ async function processUrl(
     console.log(`  Week start date: ${weekStartDate}`);
 
     // Prepare article data
-    const articleData: Omit<ArticleData, 'tags'> = {
+    const articleData: Omit<ArticleData, "tags"> = {
       slug,
       title,
       url,
@@ -143,7 +159,7 @@ async function processUrl(
     };
 
     // Insert article
-    console.log('  Inserting into database...');
+    console.log("  Inserting into database...");
     const articleId = await db.insertArticle(articleData);
 
     // Handle tags
@@ -171,11 +187,14 @@ async function ingest(urls: string[], options: { tags?: string }) {
 
   // Parse tags
   const tags = options.tags
-    ? options.tags.split(',').map((t) => t.trim()).filter(Boolean)
+    ? options.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
     : [];
 
   // Get existing slugs to avoid conflicts
-  console.log('Loading existing slugs...');
+  console.log("Loading existing slugs...");
   const existingSlugs = await db.getAllSlugs();
 
   // Process each URL
@@ -183,16 +202,25 @@ async function ingest(urls: string[], options: { tags?: string }) {
 
   for (const url of urls) {
     try {
-      await processUrl(url, tags, config, db, scraper, summarizer, existingSlugs);
+      await processUrl(
+        url,
+        tags,
+        config,
+        db,
+        scraper,
+        summarizer,
+        existingSlugs
+      );
       results.push({ url, success: true });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       results.push({ url, success: false, error: errorMessage });
     }
   }
 
   // Summary
-  console.log('\n=== Summary ===');
+  console.log("\n=== Summary ===");
   const successful = results.filter((r) => r.success).length;
   const failed = results.filter((r) => !r.success).length;
 
@@ -213,16 +241,15 @@ async function ingest(urls: string[], options: { tags?: string }) {
 const program = new Command();
 
 program
-  .name('archive-ingest')
-  .description('Ingest URLs into the link archive')
-  .version('1.0.0');
+  .name("archive-ingest")
+  .description("Ingest URLs into the link archive")
+  .version("1.0.0");
 
 program
-  .command('ingest')
-  .description('Ingest one or more URLs')
-  .argument('<urls...>', 'URLs to ingest')
-  .option('-t, --tags <tags>', 'Comma-separated list of tags')
+  .command("ingest")
+  .description("Ingest one or more URLs")
+  .argument("<urls...>", "URLs to ingest")
+  .option("-t, --tags <tags>", "Comma-separated list of tags")
   .action(ingest);
 
 program.parse();
-

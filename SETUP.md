@@ -12,7 +12,7 @@
 
 ```bash
 # In the project root
-wrangler d1 create link-archive
+wrangler d1 create hoarder
 ```
 
 This will output a database ID. Copy it.
@@ -25,12 +25,12 @@ Open `wrangler.jsonc` and replace `YOUR_DATABASE_ID_HERE` with the database ID f
 
 ```bash
 # Get the database ID from wrangler.jsonc
-wrangler d1 execute link-archive --file=./migrations/001_initial_schema.sql
+wrangler d1 execute hoarder --file=./migrations/001_initial_schema.sql
 ```
 
 Or if using remote database:
 ```bash
-wrangler d1 execute link-archive --remote --file=./migrations/001_initial_schema.sql
+wrangler d1 execute hoarder --remote --file=./migrations/001_initial_schema.sql
 ```
 
 ## Step 4: Set Up CLI

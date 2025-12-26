@@ -7,6 +7,19 @@ export interface YouTubeMetadata {
   videoId: string;
 }
 
+interface YouTubeOEmbedResponse {
+  title?: string;
+  description?: string;
+}
+
+interface YouTubeCaptionsResponse {
+  items?: Array<{
+    snippet?: {
+      language?: string;
+    };
+  }>;
+}
+
 /**
  * Extract video ID from YouTube URL
  */
@@ -45,7 +58,7 @@ export async function fetchYouTubeMetadata(url: string): Promise<YouTubeMetadata
       throw new Error(`Failed to fetch YouTube metadata: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as YouTubeOEmbedResponse;
 
     return {
       title: data.title || 'Untitled Video',
@@ -77,12 +90,12 @@ export async function fetchYouTubeTranscription(
       const response = await fetch(apiUrl);
 
       if (response.ok) {
-        const data = await response.json();
+        const data = (await response.json()) as YouTubeCaptionsResponse;
         const captions = data.items;
 
         // Find English caption track
-        const englishCaption = captions.find(
-          (caption: any) => caption.snippet.language === 'en'
+        const englishCaption = captions?.find(
+          (caption: any) => caption.snippet?.language === 'en'
         );
 
         if (englishCaption) {
