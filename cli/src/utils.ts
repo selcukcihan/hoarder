@@ -94,3 +94,27 @@ export function detectContentType(url: string): 'article' | 'video' | 'blog_post
   return 'article';
 }
 
+/**
+ * Sanitize a tag: lowercase, remove special characters, trim whitespace
+ */
+export function sanitizeTag(tag: string): string {
+  return tag
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+}
+
+/**
+ * Sanitize and filter tags array
+ */
+export function sanitizeTags(tags: string[], maxTags: number = 10): string[] {
+  return tags
+    .map(sanitizeTag)
+    .filter(tag => tag.length > 0) // Remove empty tags
+    .filter((tag, index, self) => self.indexOf(tag) === index) // Remove duplicates
+    .slice(0, maxTags); // Limit to maxTags
+}
+

@@ -19,6 +19,7 @@ import {
   ensureUniqueSlug,
   getWeekStartDate,
   detectContentType,
+  sanitizeTags,
 } from "./utils.js";
 import type { Config, ArticleData } from "./types.js";
 
@@ -71,7 +72,6 @@ function loadConfig(): Config {
 // Process a single URL
 async function processUrl(
   url: string,
-  tags: string[],
   config: Config,
   db: D1Client,
   scraper: Scraper,
@@ -134,6 +134,12 @@ async function processUrl(
     console.log("  Generating summaries...");
     const summaries = await summarizer.generateSummaries(contentForSummary);
 
+    // Generate tags from content
+    console.log("  Generating tags from content...");
+    const rawTags = await summarizer.generateTags(contentForSummary);
+    const tags = sanitizeTags(rawTags, 10);
+    console.log(`  Generated ${tags.length} tag(s): ${tags.join(", ")}`);
+
     // Generate slug
     const baseSlug = generateSlug(title);
     const slug = ensureUniqueSlug(baseSlug, existingSlugs);
@@ -166,7 +172,7 @@ async function processUrl(
     if (tags.length > 0) {
       console.log(`  Linking ${tags.length} tag(s)...`);
       const tagIds = await Promise.all(
-        tags.map((tag) => db.getOrCreateTag(tag.trim()))
+        tags.map((tag) => db.getOrCreateTag(tag))
       );
       await db.linkArticleToTags(articleId, tagIds);
     }
@@ -179,19 +185,11 @@ async function processUrl(
 }
 
 // Main CLI command
-async function ingest(urls: string[], options: { tags?: string }) {
+async function ingest(urls: string[]) {
   const config = loadConfig();
   const db = new D1Client(config.database);
   const scraper = new Scraper(config.cloudflare);
   const summarizer = new Summarizer(config.gemini);
-
-  // Parse tags
-  const tags = options.tags
-    ? options.tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean)
-    : [];
 
   // Get existing slugs to avoid conflicts
   console.log("Loading existing slugs...");
@@ -202,15 +200,7 @@ async function ingest(urls: string[], options: { tags?: string }) {
 
   for (const url of urls) {
     try {
-      await processUrl(
-        url,
-        tags,
-        config,
-        db,
-        scraper,
-        summarizer,
-        existingSlugs
-      );
+      await processUrl(url, config, db, scraper, summarizer, existingSlugs);
       results.push({ url, success: true });
     } catch (error) {
       const errorMessage =
@@ -249,7 +239,6 @@ program
   .command("ingest")
   .description("Ingest one or more URLs")
   .argument("<urls...>", "URLs to ingest")
-  .option("-t, --tags <tags>", "Comma-separated list of tags")
   .action(ingest);
 
 program.parse();
