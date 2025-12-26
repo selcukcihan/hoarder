@@ -42,18 +42,18 @@ const { article } = Astro.props;
 
 <style>
   .article-card {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow);
     display: flex;
     gap: 1.5rem;
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, background-color 0.3s ease;
   }
 
   .article-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px var(--shadow-hover);
   }
 
   .thumbnail-link {
@@ -80,18 +80,20 @@ const { article } = Astro.props;
   }
 
   .title a {
-    color: #333;
+    color: var(--text-primary);
     text-decoration: none;
+    transition: color 0.3s ease;
   }
 
   .title a:hover {
-    color: #0066cc;
+    color: var(--link-hover);
   }
 
   .summary {
-    color: #666;
+    color: var(--text-secondary);
     margin: 0 0 1rem 0;
     flex: 1;
+    transition: color 0.3s ease;
   }
 
   .meta {
@@ -103,13 +105,15 @@ const { article } = Astro.props;
   }
 
   .original-link {
-    color: #0066cc;
+    color: var(--link-color);
     text-decoration: none;
     font-size: 0.9rem;
+    transition: color 0.3s ease;
   }
 
   .original-link:hover {
     text-decoration: underline;
+    color: var(--link-hover);
   }
 
   .tags {
@@ -119,17 +123,17 @@ const { article } = Astro.props;
   }
 
   .tag {
-    background: #f0f0f0;
+    background: var(--tag-bg);
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-secondary);
     text-decoration: none;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.3s ease;
   }
 
   .tag:hover {
-    background: #e0e0e0;
+    background: var(--tag-hover);
   }
 
   @media (max-width: 768px) {

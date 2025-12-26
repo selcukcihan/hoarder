@@ -71,22 +71,25 @@ const { article } = Astro.props;
 
 <style>
   .article-detail {
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 8px;
     padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow);
+    transition: background-color 0.3s ease;
   }
 
   .article-header {
     margin-bottom: 2rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
   }
 
   .title {
     font-size: 2rem;
     margin: 0 0 1rem 0;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
   }
 
   .meta-info {
@@ -98,18 +101,21 @@ const { article } = Astro.props;
   }
 
   .original-link {
-    color: #0066cc;
+    color: var(--link-color);
     text-decoration: none;
     font-weight: 500;
+    transition: color 0.3s ease;
   }
 
   .original-link:hover {
     text-decoration: underline;
+    color: var(--link-hover);
   }
 
   .date {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.9rem;
+    transition: color 0.3s ease;
   }
 
   .thumbnail-container {
@@ -121,7 +127,7 @@ const { article } = Astro.props;
     max-width: 100%;
     height: auto;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px var(--shadow);
   }
 
   .content {
@@ -135,15 +141,17 @@ const { article } = Astro.props;
   .content h2 {
     font-size: 1.5rem;
     margin: 0 0 1rem 0;
-    color: #333;
-    border-bottom: 2px solid #e0e0e0;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 0.5rem;
+    transition: color 0.3s ease, border-color 0.3s ease;
   }
 
   .extended-summary {
     font-size: 1.1rem;
-    color: #555;
+    color: var(--text-secondary);
     line-height: 1.8;
+    transition: color 0.3s ease;
   }
 
   .tags {
@@ -153,28 +161,31 @@ const { article } = Astro.props;
   }
 
   .tag {
-    background: #f0f0f0;
+    background: var(--tag-bg);
     padding: 0.5rem 1rem;
     border-radius: 16px;
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-secondary);
     text-decoration: none;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.3s ease;
   }
 
   .tag:hover {
-    background: #e0e0e0;
+    background: var(--tag-hover);
   }
 
   .transcription {
-    background: #f9f9f9;
+    background: var(--bg-tertiary);
     padding: 1.5rem;
     border-radius: 4px;
     line-height: 1.8;
+    transition: background-color 0.3s ease;
   }
 
   .transcription p {
     margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
   }
 
   .transcription p:last-child {
@@ -184,17 +195,20 @@ const { article } = Astro.props;
   .article-nav {
     margin-top: 3rem;
     padding-top: 2rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
   }
 
   .back-link {
-    color: #0066cc;
+    color: var(--link-color);
     text-decoration: none;
     font-weight: 500;
+    transition: color 0.3s ease;
   }
 
   .back-link:hover {
     text-decoration: underline;
+    color: var(--link-hover);
   }
 
   @media (max-width: 768px) {

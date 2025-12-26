@@ -14,36 +14,39 @@ import Layout from '../layouts/Layout.astro';
   .not-found {
     text-align: center;
     padding: 4rem 2rem;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow);
+    transition: background-color 0.3s ease;
   }
 
   h1 {
     font-size: 4rem;
     margin: 0 0 1rem 0;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
   }
 
   p {
     font-size: 1.5rem;
-    color: #666;
+    color: var(--text-secondary);
     margin: 0 0 2rem 0;
+    transition: color 0.3s ease;
   }
 
   .home-link {
     display: inline-block;
-    color: #0066cc;
+    color: var(--link-color);
     text-decoration: none;
     font-weight: 500;
     padding: 0.75rem 1.5rem;
-    border: 2px solid #0066cc;
+    border: 2px solid var(--link-color);
     border-radius: 4px;
     transition: all 0.2s;
   }
 
   .home-link:hover {
-    background: #0066cc;
+    background: var(--link-color);
     color: white;
   }
 </style>

@@ -109,7 +109,8 @@ if (isDate) {
   h1 {
     font-size: 2.5rem;
     margin: 0 0 2rem 0;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
   }
 
   .articles-list {
@@ -118,11 +119,12 @@ if (isDate) {
   }
 
   .empty-state {
-    background: white;
+    background: var(--bg-secondary);
     padding: 3rem;
     border-radius: 8px;
     text-align: center;
-    color: #666;
+    color: var(--text-secondary);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   @media (max-width: 768px) {

@@ -50,17 +50,19 @@ const { allTags, topTags, currentTag } = Astro.props;
   .tag-filter {
     margin-bottom: 0;
     padding: 1rem;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow);
     box-sizing: border-box;
     max-width: 100%;
+    transition: background-color 0.3s ease;
   }
 
   .tag-filter h3 {
     margin: 0 0 1rem 0;
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
   }
 
   .tags {
@@ -75,25 +77,25 @@ const { allTags, topTags, currentTag } = Astro.props;
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.2s;
-    border: 2px solid #e0e0e0;
-    background: white;
-    color: #666;
+    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
   }
 
   .tag:hover {
-    border-color: #999;
-    background: #f9f9f9;
+    border-color: var(--text-tertiary);
+    background: var(--tag-hover);
   }
 
   .tag.active {
-    background: #0066cc;
+    background: var(--tag-active-bg);
     color: white;
-    border-color: #0066cc;
+    border-color: var(--tag-active-bg);
   }
 
   .tag.active:hover {
-    background: #0052a3;
-    border-color: #0052a3;
+    background: var(--tag-active-hover);
+    border-color: var(--tag-active-hover);
   }
 
   .tag-count {
@@ -118,16 +120,18 @@ const { allTags, topTags, currentTag } = Astro.props;
   .tag-search-input {
     width: 100%;
     padding: 0.75rem;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.9rem;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
     box-sizing: border-box;
+    background: var(--bg-primary);
+    color: var(--text-primary);
   }
 
   .tag-search-input:focus {
     outline: none;
-    border-color: #0066cc;
+    border-color: var(--link-color);
   }
 
   .all-tags {

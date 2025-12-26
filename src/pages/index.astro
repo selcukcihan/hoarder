@@ -101,11 +101,12 @@ const pageTitle = tagParam
   }
 
   .empty-state {
-    background: white;
+    background: var(--bg-secondary);
     padding: 3rem;
     border-radius: 8px;
     text-align: center;
-    color: #666;
+    color: var(--text-secondary);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   @media (max-width: 968px) {

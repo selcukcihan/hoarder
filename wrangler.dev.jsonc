@@ -1,6 +1,5 @@
 /**
  * Development configuration for wrangler
- * This config omits assets to prevent uploads during local development
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
@@ -11,6 +10,10 @@
 		"nodejs_compat",
 		"global_fetch_strictly_public"
 	],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist"
+	},
 	"observability": {
 		"enabled": true
 	},

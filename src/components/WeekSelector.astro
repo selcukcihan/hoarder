@@ -36,36 +36,40 @@ function formatWeekLabel(weekDate: string): string {
   .week-selector {
     margin-bottom: 0;
     padding: 1rem;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px var(--shadow);
+    transition: background-color 0.3s ease;
   }
 
   label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
   }
 
   select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
-    background: white;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     cursor: pointer;
+    transition: border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
   }
 
   select:hover {
-    border-color: #999;
+    border-color: var(--text-tertiary);
   }
 
   select:focus {
     outline: none;
-    border-color: #0066cc;
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
   }
 </style>
 
