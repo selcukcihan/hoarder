@@ -1,0 +1,73 @@
+---
+interface Props {
+  tags: Array<{ id: number; name: string }>;
+  currentTag?: string;
+}
+
+const { tags, currentTag } = Astro.props;
+---
+
+<div class="tag-filter">
+  <h3>Filter by Tag</h3>
+  <div class="tags">
+    <a href="/" class={`tag ${!currentTag ? 'active' : ''}`}>All</a>
+    {tags.map((tag) => (
+      <a
+        href={`/?tag=${tag.name}`}
+        class={`tag ${currentTag === tag.name ? 'active' : ''}`}
+      >
+        {tag.name}
+      </a>
+    ))}
+  </div>
+</div>
+
+<style>
+  .tag-filter {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .tag-filter h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: #333;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    border: 2px solid #e0e0e0;
+    background: white;
+    color: #666;
+  }
+
+  .tag:hover {
+    border-color: #999;
+    background: #f9f9f9;
+  }
+
+  .tag.active {
+    background: #0066cc;
+    color: white;
+    border-color: #0066cc;
+  }
+
+  .tag.active:hover {
+    background: #0052a3;
+    border-color: #0052a3;
+  }
+</style>
+

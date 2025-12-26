@@ -1,0 +1,127 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import ArticleDetail from '../components/ArticleDetail.astro';
+import WeekSelector from '../components/WeekSelector.astro';
+import TagFilter from '../components/TagFilter.astro';
+import { getArticlesByWeek, getArticleBySlug, getWeekStartDates, getAllTags, getArticlesByTag } from '../lib/db';
+import { isDateFormat, isValidMonday, getNearestMonday } from '../lib/utils';
+
+const path = Astro.params.path;
+const db = Astro.locals.runtime?.env?.DB;
+
+if (!db) {
+  return new Response('Database not available', { status: 500 });
+}
+
+if (!path) {
+  return Astro.redirect('/');
+}
+
+// Check if path matches date format
+const isDate = isDateFormat(path);
+
+if (isDate) {
+  // Handle weekly archive page
+  let weekDate = path;
+  
+  // Validate and adjust to Monday if needed
+  if (!isValidMonday(weekDate)) {
+    weekDate = getNearestMonday(weekDate);
+    return Astro.redirect(`/${weekDate}`, 301);
+  }
+
+  // Get query params
+  const url = Astro.url;
+  const tagParam = url.searchParams.get('tag');
+
+  // Get all weeks and tags for navigation
+  const [weeks, allTags] = await Promise.all([
+    getWeekStartDates(db),
+    getAllTags(db),
+  ]);
+
+  // Get articles
+  let articles;
+  if (tagParam) {
+    articles = await getArticlesByTag(db, tagParam, weekDate);
+  } else {
+    articles = await getArticlesByWeek(db, weekDate);
+  }
+
+  const pageTitle = tagParam 
+    ? `Archive - ${tagParam} (${weekDate})`
+    : `Archive - Week of ${weekDate}`;
+
+  return (
+    <Layout title={pageTitle}>
+      <div class="archive-page">
+        <h1>Link Archive</h1>
+        
+        <WeekSelector currentWeek={weekDate} weeks={weeks} />
+        
+        {allTags.length > 0 && (
+          <TagFilter tags={allTags} currentTag={tagParam || undefined} />
+        )}
+
+        {articles.length > 0 ? (
+          <div class="articles-list">
+            {articles.map((article) => (
+              <ArticleCard article={article} />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <p>No articles found for this week{tagParam ? ` with tag "${tagParam}"` : ''}.</p>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+} else {
+  // Handle article detail page (slug)
+  const article = await getArticleBySlug(db, path);
+
+  if (!article) {
+    return Astro.redirect('/404');
+  }
+
+  return (
+    <Layout title={article.title} description={article.short_summary}>
+      <ArticleDetail article={article} />
+    </Layout>
+  );
+}
+---
+
+<style>
+  .archive-page {
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin: 0 0 2rem 0;
+    color: #333;
+  }
+
+  .articles-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .empty-state {
+    background: white;
+    padding: 3rem;
+    border-radius: 8px;
+    text-align: center;
+    color: #666;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
+  }
+</style>
+

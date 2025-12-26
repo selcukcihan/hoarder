@@ -1,0 +1,17 @@
+{
+  "cloudflare": {
+    "accountId": "your-cloudflare-account-id",
+    "apiToken": "your-cloudflare-api-token",
+    "browserRenderingApiUrl": "https://api.cloudflare.com/client/v4/accounts/{accountId}/browser-rendering"
+  },
+  "gemini": {
+    "apiKey": "your-google-gemini-api-key",
+    "model": "gemini-1.5-flash"
+  },
+  "database": {
+    "accountId": "your-cloudflare-account-id",
+    "databaseId": "your-d1-database-id",
+    "apiToken": "your-cloudflare-api-token"
+  }
+}
+

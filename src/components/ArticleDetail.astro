@@ -1,0 +1,240 @@
+---
+import type { ArticleWithTags } from '../types/article';
+
+interface Props {
+  article: ArticleWithTags;
+}
+
+const { article } = Astro.props;
+---
+
+<article class="article-detail">
+  <header class="article-header">
+    <h1 class="title">{article.title}</h1>
+    <div class="meta-info">
+      <a href={article.url} target="_blank" rel="noopener noreferrer" class="original-link">
+        View Original Article →
+      </a>
+      <span class="date">Archived on {new Date(article.created_at).toLocaleDateString()}</span>
+    </div>
+  </header>
+
+  {article.thumbnail_url && (
+    <div class="thumbnail-container">
+      <img
+        src={article.thumbnail_url}
+        alt={article.title}
+        class="thumbnail"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      />
+    </div>
+  )}
+
+  <div class="content">
+    {article.extended_summary && (
+      <section class="summary-section">
+        <h2>Summary</h2>
+        <p class="extended-summary">{article.extended_summary}</p>
+      </section>
+    )}
+
+    {article.tags.length > 0 && (
+      <section class="tags-section">
+        <h2>Tags</h2>
+        <div class="tags">
+          {article.tags.map((tag) => (
+            <a href={`/?tag=${tag.name}`} class="tag">{tag.name}</a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {article.transcription && (
+      <section class="transcription-section">
+        <h2>Video Transcription</h2>
+        <div class="transcription">
+          {article.transcription.split('\n').map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {article.markdown_content && (
+      <section class="content-section">
+        <h2>Content</h2>
+        <div class="markdown-content">
+          <pre>{article.markdown_content}</pre>
+        </div>
+      </section>
+    )}
+  </div>
+
+  <nav class="article-nav">
+    <a href={`/${article.week_start_date}`} class="back-link">
+      ← Back to Week Archive
+    </a>
+  </nav>
+</article>
+
+<style>
+  .article-detail {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .article-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .title {
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    color: #333;
+  }
+
+  .meta-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .original-link {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .original-link:hover {
+    text-decoration: underline;
+  }
+
+  .date {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .thumbnail-container {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .thumbnail {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .content {
+    line-height: 1.8;
+  }
+
+  .content section {
+    margin-bottom: 2rem;
+  }
+
+  .content h2 {
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+  }
+
+  .extended-summary {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.8;
+  }
+
+  .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: #f0f0f0;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .tag:hover {
+    background: #e0e0e0;
+  }
+
+  .transcription {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 4px;
+    line-height: 1.8;
+  }
+
+  .transcription p {
+    margin: 0 0 1rem 0;
+  }
+
+  .transcription p:last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown-content {
+    line-height: 1.8;
+  }
+
+  .markdown-content pre {
+    background: #f4f4f4;
+    padding: 1.5rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .article-nav {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .back-link {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .article-detail {
+      padding: 1rem;
+    }
+
+    .title {
+      font-size: 1.5rem;
+    }
+
+    .meta-info {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+

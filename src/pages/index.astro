@@ -1,11 +1,95 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import WeekSelector from '../components/WeekSelector.astro';
+import TagFilter from '../components/TagFilter.astro';
+import { getArticlesByWeek, getWeekStartDates, getAllTags, getArticlesByTag } from '../lib/db';
+import { getWeekStartDate, isValidMonday } from '../lib/utils';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Get current week start date
+const currentWeek = getWeekStartDate();
+
+// Get query params
+const url = Astro.url;
+const tagParam = url.searchParams.get('tag');
+
+// Get database from runtime
+const db = Astro.locals.runtime?.env?.DB;
+
+if (!db) {
+  return new Response('Database not available', { status: 500 });
+}
+
+// Get all weeks and tags for navigation
+const [weeks, allTags] = await Promise.all([
+  getWeekStartDates(db),
+  getAllTags(db),
+]);
+
+// Get articles
+let articles;
+if (tagParam) {
+  articles = await getArticlesByTag(db, tagParam, currentWeek);
+} else {
+  articles = await getArticlesByWeek(db, currentWeek);
+}
+
+const pageTitle = tagParam 
+  ? `Archive - ${tagParam} (${currentWeek})`
+  : `Archive - Week of ${currentWeek}`;
 ---
 
-<Layout>
-	<Welcome />
+<Layout title={pageTitle}>
+  <div class="archive-page">
+    <h1>Link Archive</h1>
+    
+    <WeekSelector currentWeek={currentWeek} weeks={weeks} />
+    
+    {allTags.length > 0 && (
+      <TagFilter tags={allTags} currentTag={tagParam || undefined} />
+    )}
+
+    {articles.length > 0 ? (
+      <div class="articles-list">
+        {articles.map((article) => (
+          <ArticleCard article={article} />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <p>No articles found for this week{tagParam ? ` with tag "${tagParam}"` : ''}.</p>
+      </div>
+    )}
+  </div>
 </Layout>
+
+<style>
+  .archive-page {
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin: 0 0 2rem 0;
+    color: #333;
+  }
+
+  .articles-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .empty-state {
+    background: white;
+    padding: 3rem;
+    border-radius: 8px;
+    text-align: center;
+    color: #666;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 2rem;
+    }
+  }
+</style>
