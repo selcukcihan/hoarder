@@ -18,7 +18,7 @@ export class Summarizer {
   async generateShortSummary(content: string): Promise<string> {
     const model = this.genAI.getGenerativeModel({ model: this.model });
 
-    const prompt = `Summarize the following content in 2-3 sentences (maximum 200 characters). Focus on the main points:
+    const prompt = `Summarize the following content in 5-6 sentences (maximum 300 characters). Focus on the main points, key takeaways and insights:
 
 ${content}`;
 
@@ -45,7 +45,7 @@ ${content}`;
   async generateExtendedSummary(content: string): Promise<string> {
     const model = this.genAI.getGenerativeModel({ model: this.model });
 
-    const prompt = `Provide a comprehensive summary of the following content in 5-7 sentences. Highlight key points, main ideas, and important details:
+    const prompt = `Provide a comprehensive summary of the following content in 5-10 sentences. Highlight key points, main ideas, and important details:
 
 ${content}`;
 
@@ -81,6 +81,8 @@ ${content}`;
 Return only a comma-separated list of tags, with no additional text or explanation. 
 Each tag should be a single word or short phrase (2-3 words max). 
 Focus on the most important and specific topics covered in the content.
+Ensure the tags are concise, and descriptive.
+Lean on single words when possible.
 
 Content:
 ${content}`;
