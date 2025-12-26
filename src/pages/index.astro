@@ -5,7 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import WeekSelector from '../components/WeekSelector.astro';
 import TagFilter from '../components/TagFilter.astro';
-import { getArticlesByWeek, getWeekStartDates, getAllTags, getArticlesByTag } from '../lib/db';
+import { getArticlesByWeek, getWeekStartDates, getAllTags, getTopTags, getArticlesByTag } from '../lib/db';
 import { getWeekStartDate, isValidMonday } from '../lib/utils';
 
 // Get current week start date
@@ -23,9 +23,10 @@ if (!db) {
 }
 
 // Get all weeks and tags for navigation
-const [weeks, allTags] = await Promise.all([
+const [weeks, allTags, topTags] = await Promise.all([
   getWeekStartDates(db),
   getAllTags(db),
+  getTopTags(db, 20),
 ]);
 
 // Get articles
@@ -48,7 +49,7 @@ const pageTitle = tagParam
     <WeekSelector currentWeek={currentWeek} weeks={weeks} />
     
     {allTags.length > 0 && (
-      <TagFilter tags={allTags} currentTag={tagParam || undefined} />
+      <TagFilter allTags={allTags} topTags={topTags} currentTag={tagParam || undefined} />
     )}
 
     {articles.length > 0 ? (

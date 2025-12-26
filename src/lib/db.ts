@@ -1,6 +1,6 @@
 // Database helper functions for D1
 
-import type { Article, ArticleWithTags, Tag } from '../types/article';
+import type { Article, ArticleWithTags, Tag, TagWithCount } from '../types/article';
 
 export interface D1Database {
   prepare(query: string): D1PreparedStatement;
@@ -157,14 +157,47 @@ export async function getArticlesByTag(
 }
 
 /**
- * Get all tags
+ * Get all tags with usage counts
  */
-export async function getAllTags(db: D1Database): Promise<Tag[]> {
+export async function getAllTags(db: D1Database): Promise<TagWithCount[]> {
   const result = await db
-    .prepare(`SELECT * FROM tags ORDER BY name`)
-    .all<Tag>();
+    .prepare(
+      `SELECT t.id, t.name, COUNT(at.article_id) as count
+       FROM tags t
+       LEFT JOIN article_tags at ON t.id = at.tag_id
+       GROUP BY t.id, t.name
+       ORDER BY t.name`
+    )
+    .all<Tag & { count: number }>();
 
-  return result.results;
+  return result.results.map((tag) => ({
+    id: tag.id,
+    name: tag.name,
+    count: tag.count,
+  }));
+}
+
+/**
+ * Get top tags by usage count (number of articles using each tag)
+ */
+export async function getTopTags(db: D1Database, limit: number = 20): Promise<TagWithCount[]> {
+  const result = await db
+    .prepare(
+      `SELECT t.id, t.name, COUNT(at.article_id) as usage_count
+       FROM tags t
+       LEFT JOIN article_tags at ON t.id = at.tag_id
+       GROUP BY t.id, t.name
+       ORDER BY usage_count DESC, t.name ASC
+       LIMIT ?`
+    )
+    .bind(limit)
+    .all<Tag & { usage_count: number }>();
+
+  return result.results.map((tag) => ({
+    id: tag.id,
+    name: tag.name,
+    count: tag.usage_count,
+  }));
 }
 
 /**

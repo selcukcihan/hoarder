@@ -23,6 +23,10 @@ export interface Tag {
   name: string;
 }
 
+export interface TagWithCount extends Tag {
+  count: number;
+}
+
 export interface ArticleWithTags extends Article {
   tags: Tag[];
 }

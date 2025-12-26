@@ -1,22 +1,46 @@
 ---
 interface Props {
-  tags: Array<{ id: number; name: string }>;
+  allTags: Array<{ id: number; name: string; count: number }>;
+  topTags: Array<{ id: number; name: string; count: number }>;
   currentTag?: string;
 }
 
-const { tags, currentTag } = Astro.props;
+const { allTags, topTags, currentTag } = Astro.props;
 ---
 
 <div class="tag-filter">
   <h3>Filter by Tag</h3>
-  <div class="tags">
+  <div class="search-container">
+    <input
+      type="text"
+      id="tag-search"
+      placeholder="Search tags..."
+      class="tag-search-input"
+    />
+  </div>
+  <div class="tags" id="tags-container">
     <a href="/" class={`tag ${!currentTag ? 'active' : ''}`}>All</a>
-    {tags.map((tag) => (
+    {topTags.map((tag) => (
       <a
         href={`/?tag=${tag.name}`}
         class={`tag ${currentTag === tag.name ? 'active' : ''}`}
+        data-tag-name={tag.name.toLowerCase()}
       >
         {tag.name}
+        <span class="tag-count">{tag.count}</span>
+      </a>
+    ))}
+  </div>
+  <div class="all-tags" id="all-tags-container" style="display: none;">
+    <a href="/" class={`tag ${!currentTag ? 'active' : ''}`} data-tag-name="all">All</a>
+    {allTags.map((tag) => (
+      <a
+        href={`/?tag=${tag.name}`}
+        class={`tag ${currentTag === tag.name ? 'active' : ''}`}
+        data-tag-name={tag.name.toLowerCase()}
+      >
+        {tag.name}
+        <span class="tag-count">{tag.count}</span>
       </a>
     ))}
   </div>
@@ -69,5 +93,75 @@ const { tags, currentTag } = Astro.props;
     background: #0052a3;
     border-color: #0052a3;
   }
+
+  .tag-count {
+    margin-left: 0.5rem;
+    padding: 0.15rem 0.4rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .tag.active .tag-count {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .search-container {
+    margin-bottom: 1rem;
+  }
+
+  .tag-search-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+  }
+
+  .tag-search-input:focus {
+    outline: none;
+    border-color: #0066cc;
+  }
+
+  .all-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 </style>
+
+<script>
+  const searchInput = document.getElementById('tag-search') as HTMLInputElement;
+  const tagsContainer = document.getElementById('tags-container') as HTMLElement;
+  const allTagsContainer = document.getElementById('all-tags-container') as HTMLElement;
+  const allTags = Array.from(allTagsContainer.querySelectorAll('.tag')) as HTMLAnchorElement[];
+
+  if (searchInput && tagsContainer && allTagsContainer) {
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = (e.target as HTMLInputElement).value.toLowerCase().trim();
+      
+      if (searchTerm === '') {
+        // Show top tags, hide all tags
+        tagsContainer.style.display = 'flex';
+        allTagsContainer.style.display = 'none';
+      } else {
+        // Hide top tags, show filtered tags
+        tagsContainer.style.display = 'none';
+        allTagsContainer.style.display = 'flex';
+        
+        // Filter tags based on search term
+        allTags.forEach((tag) => {
+          const tagName = tag.getAttribute('data-tag-name') || '';
+          if (tagName.includes(searchTerm)) {
+            tag.style.display = 'inline-block';
+          } else {
+            tag.style.display = 'none';
+          }
+        });
+      }
+    });
+  }
+</script>
 
