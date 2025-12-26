@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import Layout from '../layouts/Layout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import ArticleDetail from '../components/ArticleDetail.astro';
@@ -21,9 +23,17 @@ if (!path) {
 // Check if path matches date format
 const isDate = isDateFormat(path);
 
+let weekDate: string | null = null;
+let tagParam: string | null = null;
+let articles: any[] = [];
+let weeks: string[] = [];
+let allTags: string[] = [];
+let pageTitle = '';
+let article: any = null;
+
 if (isDate) {
   // Handle weekly archive page
-  let weekDate = path;
+  weekDate = path;
   
   // Validate and adjust to Monday if needed
   if (!isValidMonday(weekDate)) {
@@ -33,66 +43,63 @@ if (isDate) {
 
   // Get query params
   const url = Astro.url;
-  const tagParam = url.searchParams.get('tag');
+  tagParam = url.searchParams.get('tag');
 
   // Get all weeks and tags for navigation
-  const [weeks, allTags] = await Promise.all([
+  [weeks, allTags] = await Promise.all([
     getWeekStartDates(db),
     getAllTags(db),
   ]);
 
   // Get articles
-  let articles;
   if (tagParam) {
     articles = await getArticlesByTag(db, tagParam, weekDate);
   } else {
     articles = await getArticlesByWeek(db, weekDate);
   }
 
-  const pageTitle = tagParam 
+  pageTitle = tagParam 
     ? `Archive - ${tagParam} (${weekDate})`
     : `Archive - Week of ${weekDate}`;
-
-  return (
-    <Layout title={pageTitle}>
-      <div class="archive-page">
-        <h1>Link Archive</h1>
-        
-        <WeekSelector currentWeek={weekDate} weeks={weeks} />
-        
-        {allTags.length > 0 && (
-          <TagFilter tags={allTags} currentTag={tagParam || undefined} />
-        )}
-
-        {articles.length > 0 ? (
-          <div class="articles-list">
-            {articles.map((article) => (
-              <ArticleCard article={article} />
-            ))}
-          </div>
-        ) : (
-          <div class="empty-state">
-            <p>No articles found for this week{tagParam ? ` with tag "${tagParam}"` : ''}.</p>
-          </div>
-        )}
-      </div>
-    </Layout>
-  );
 } else {
   // Handle article detail page (slug)
-  const article = await getArticleBySlug(db, path);
+  article = await getArticleBySlug(db, path);
 
   if (!article) {
     return Astro.redirect('/404');
   }
-
-  return (
-    <Layout title={article.title} description={article.short_summary}>
-      <ArticleDetail article={article} />
-    </Layout>
-  );
 }
 ---
+
+{isDate ? (
+  <Layout title={pageTitle}>
+    <div class="archive-page">
+      <h1>Link Archive</h1>
+      
+      <WeekSelector currentWeek={weekDate!} weeks={weeks} />
+      
+      {allTags.length > 0 && (
+        <TagFilter tags={allTags} currentTag={tagParam || undefined} />
+      )}
+
+      {articles.length > 0 ? (
+        <div class="articles-list">
+          {articles.map((article) => (
+            <ArticleCard article={article} />
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p>No articles found for this week{tagParam ? ` with tag "${tagParam}"` : ''}.</p>
+        </div>
+      )}
+    </div>
+  </Layout>
+) : (
+  <Layout title={article.title} description={article.short_summary}>
+    <ArticleDetail article={article} />
+  </Layout>
+)}
 
 <style>
   .archive-page {
@@ -124,4 +131,3 @@ if (isDate) {
     }
   }
 </style>
-
