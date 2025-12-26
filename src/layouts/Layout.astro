@@ -4,7 +4,7 @@ interface Props {
 	description?: string;
 }
 
-const { title = 'Link Archive', description = 'Archive of useful links, blog posts, and videos' } = Astro.props;
+const { title = 'Tech Web Hoarder', description = 'Archive of useful links, blog posts, and videos' } = Astro.props;
 ---
 
 <!doctype html>
@@ -20,14 +20,14 @@ const { title = 'Link Archive', description = 'Archive of useful links, blog pos
 	<body>
 		<header>
 			<nav>
-				<a href="/" class="logo">Link Archive</a>
+				<a href="/" class="logo">Tech Web Hoarder</a>
 			</nav>
 		</header>
 		<main>
 			<slot />
 		</main>
 		<footer>
-			<p>Link Archive &copy; {new Date().getFullYear()}</p>
+			<p>Tech Web Hoarder &copy; {new Date().getFullYear()}</p>
 		</footer>
 	</body>
 </html>
