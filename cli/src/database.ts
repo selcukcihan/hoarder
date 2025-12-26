@@ -130,7 +130,19 @@ export class D1Client {
   }
 
   /**
-   * Insert article and return ID
+   * Get article by URL
+   */
+  async getArticleByUrl(url: string): Promise<{ id: number } | null> {
+    const results = await this.query<{ id: number }>(
+      "SELECT id FROM articles WHERE url = ?",
+      [url]
+    );
+    return results.length > 0 ? results[0] : null;
+  }
+
+  /**
+   * Insert or update article based on URL (deduplication)
+   * Returns the article ID
    */
   async insertArticle(article: {
     slug: string;
@@ -144,12 +156,24 @@ export class D1Client {
     transcription: string | null;
     week_start_date: string;
   }): Promise<number> {
+    // Use INSERT ... ON CONFLICT to update existing record if URL already exists
     const result = await this.execute(
       `INSERT INTO articles (
         slug, title, url, thumbnail_url, content_type,
         short_summary, extended_summary, markdown_content,
-        transcription, week_start_date
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        transcription, week_start_date, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(url) DO UPDATE SET
+        slug = excluded.slug,
+        title = excluded.title,
+        thumbnail_url = excluded.thumbnail_url,
+        content_type = excluded.content_type,
+        short_summary = excluded.short_summary,
+        extended_summary = excluded.extended_summary,
+        markdown_content = excluded.markdown_content,
+        transcription = excluded.transcription,
+        week_start_date = excluded.week_start_date,
+        updated_at = CURRENT_TIMESTAMP`,
       [
         article.slug,
         article.title,
@@ -163,6 +187,14 @@ export class D1Client {
         article.week_start_date,
       ]
     );
+
+    // If it was an update (changes > 0 but lastInsertRowid might be 0), get the ID
+    if (result.lastInsertRowid === 0) {
+      const existing = await this.getArticleByUrl(article.url);
+      if (existing) {
+        return existing.id;
+      }
+    }
 
     return result.lastInsertRowid;
   }

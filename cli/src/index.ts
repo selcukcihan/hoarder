@@ -164,8 +164,16 @@ async function processUrl(
       week_start_date: weekStartDate,
     };
 
-    // Insert article
-    console.log("  Inserting into database...");
+    // Check if URL already exists
+    const existingArticle = await db.getArticleByUrl(url);
+    const isUpdate = existingArticle !== null;
+
+    // Insert or update article
+    if (isUpdate) {
+      console.log("  Updating existing article in database...");
+    } else {
+      console.log("  Inserting into database...");
+    }
     const articleId = await db.insertArticle(articleData);
 
     // Handle tags
@@ -177,7 +185,11 @@ async function processUrl(
       await db.linkArticleToTags(articleId, tagIds);
     }
 
-    console.log(`  ✓ Successfully archived: ${slug}`);
+    if (isUpdate) {
+      console.log(`  ✓ Successfully updated: ${slug}`);
+    } else {
+      console.log(`  ✓ Successfully archived: ${slug}`);
+    }
   } catch (error) {
     console.error(`  ✗ Error processing ${url}:`, error);
     throw error;
