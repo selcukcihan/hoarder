@@ -1,5 +1,14 @@
 // YouTube video metadata and transcription fetcher
 
+import { google } from "googleapis";
+import {
+  YoutubeTranscript,
+  YoutubeTranscriptDisabledError,
+  YoutubeTranscriptNotAvailableError,
+  YoutubeTranscriptNotAvailableLanguageError,
+  YoutubeTranscriptVideoUnavailableError,
+} from "youtube-transcript";
+
 export interface YouTubeMetadata {
   title: string;
   description: string;
@@ -10,14 +19,6 @@ export interface YouTubeMetadata {
 interface YouTubeOEmbedResponse {
   title?: string;
   description?: string;
-}
-
-interface YouTubeCaptionsResponse {
-  items?: Array<{
-    snippet?: {
-      language?: string;
-    };
-  }>;
 }
 
 /**
@@ -40,18 +41,57 @@ export function extractVideoId(url: string): string | null {
 }
 
 /**
- * Fetch YouTube video metadata using oEmbed API (no API key required)
+ * Fetch YouTube video metadata
+ * Uses YouTube Data API v3 if API key is provided, otherwise falls back to oEmbed API
  */
-export async function fetchYouTubeMetadata(url: string): Promise<YouTubeMetadata> {
+export async function fetchYouTubeMetadata(
+  url: string,
+  apiKey?: string
+): Promise<YouTubeMetadata> {
   const videoId = extractVideoId(url);
-  
+
   if (!videoId) {
-    throw new Error('Invalid YouTube URL');
+    throw new Error("Invalid YouTube URL");
   }
 
+  // Use YouTube Data API v3 if API key is provided
+  if (apiKey) {
+    try {
+      const youtube = google.youtube({
+        version: "v3",
+        auth: apiKey,
+      });
+
+      const response = await youtube.videos.list({
+        part: ["snippet", "contentDetails"],
+        id: [videoId],
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const video = response.data.items[0];
+        const snippet = video.snippet;
+
+        return {
+          title: snippet?.title || "Untitled Video",
+          description: snippet?.description || "",
+          thumbnailUrl:
+            snippet?.thumbnails?.maxres?.url ||
+            snippet?.thumbnails?.high?.url ||
+            `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+          videoId,
+        };
+      }
+    } catch (error) {
+      console.warn("YouTube Data API error, falling back to oEmbed:", error);
+      // Fall through to oEmbed API
+    }
+  }
+
+  // Fallback to oEmbed API (no API key required)
   try {
-    // Use oEmbed API for basic metadata (no API key needed)
-    const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+    const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(
+      url
+    )}&format=json`;
     const response = await fetch(oEmbedUrl);
 
     if (!response.ok) {
@@ -61,70 +101,89 @@ export async function fetchYouTubeMetadata(url: string): Promise<YouTubeMetadata
     const data = (await response.json()) as YouTubeOEmbedResponse;
 
     return {
-      title: data.title || 'Untitled Video',
-      description: data.description || '',
+      title: data.title || "Untitled Video",
+      description: data.description || "",
       thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
       videoId,
     };
   } catch (error) {
-    console.error('Error fetching YouTube metadata:', error);
+    console.error("Error fetching YouTube metadata:", error);
     throw error;
   }
 }
 
 /**
- * Fetch YouTube video transcription
- * Note: This is a simplified implementation. For production, you may want to:
- * 1. Use YouTube Data API v3 with transcripts endpoint (requires API key)
- * 2. Use a third-party service
- * 3. Fall back to video description if transcription unavailable
+ * Fetch YouTube video transcription using youtube-transcript library
+ * This library doesn't require API keys or OAuth2 authentication.
+ * It works by directly accessing YouTube's transcript endpoints.
  */
 export async function fetchYouTubeTranscription(
-  videoId: string,
-  apiKey?: string
+  videoId: string
 ): Promise<string | null> {
-  // Option 1: Try YouTube Data API v3 (if API key provided)
-  if (apiKey) {
-    try {
-      const apiUrl = `https://www.googleapis.com/youtube/v3/captions?videoId=${videoId}&part=snippet&key=${apiKey}`;
-      const response = await fetch(apiUrl);
+  console.log("Fetching YouTube transcription for video ID:", videoId);
 
-      if (response.ok) {
-        const data = (await response.json()) as YouTubeCaptionsResponse;
-        const captions = data.items;
+  try {
+    // Fetch transcript using youtube-transcript library
+    // This automatically handles language selection (prefers English)
+    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId, {
+      lang: "en", // Prefer English, but will fallback to available language
+    });
 
-        // Find English caption track
-        const englishCaption = captions?.find(
-          (caption: any) => caption.snippet?.language === 'en'
-        );
-
-        if (englishCaption) {
-          // Download the actual transcript
-          // Note: This requires additional API call to download the transcript
-          // For now, we'll return null and use description as fallback
-          // You would need to implement the download endpoint call here
-          return null; // Placeholder - implement full transcript download
-        }
-      }
-    } catch (error) {
-      console.warn('YouTube Data API error, falling back to description:', error);
+    if (!transcriptItems || transcriptItems.length === 0) {
+      console.log("No captions available for this video");
+      return null;
     }
-  }
 
-  // Option 2: Fallback - return null (will use description in main flow)
-  return null;
+    // Combine all transcript items into a single text
+    // The transcript items have format: { text: string, offset: number, duration: number }
+    const transcriptText = transcriptItems
+      .map((item) => item.text)
+      .join(" ")
+      .trim();
+
+    if (!transcriptText) {
+      console.log("Transcript is empty");
+      return null;
+    }
+
+    console.log(
+      `Successfully fetched transcript (${transcriptItems.length} segments)`
+    );
+    return transcriptText;
+  } catch (error: any) {
+    // Handle specific error types from youtube-transcript
+    if (error instanceof YoutubeTranscriptDisabledError) {
+      console.log("Transcripts are disabled for this video");
+    } else if (error instanceof YoutubeTranscriptNotAvailableError) {
+      console.log("No transcript found for this video");
+    } else if (error instanceof YoutubeTranscriptVideoUnavailableError) {
+      console.log("Video is unavailable or doesn't exist");
+    } else if (error instanceof YoutubeTranscriptNotAvailableLanguageError) {
+      console.log(
+        `Transcript not available in requested language: ${error.message}`
+      );
+    } else {
+      console.warn(
+        "Error fetching YouTube transcription:",
+        error.message || error
+      );
+    }
+    return null;
+  }
 }
 
 /**
  * Get video description as fallback content
  */
-export async function getVideoDescription(url: string): Promise<string> {
+export async function getVideoDescription(
+  url: string,
+  apiKey?: string
+): Promise<string> {
   try {
-    const metadata = await fetchYouTubeMetadata(url);
-    return metadata.description || '';
+    const metadata = await fetchYouTubeMetadata(url, apiKey);
+    return metadata.description || "";
   } catch (error) {
-    console.error('Error fetching video description:', error);
-    return '';
+    console.error("Error fetching video description:", error);
+    return "";
   }
 }
-

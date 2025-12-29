@@ -94,17 +94,14 @@ async function processUrl(
     // Handle YouTube videos separately
     if (contentType === "video") {
       console.log("  Fetching YouTube metadata...");
-      const ytMetadata = await fetchYouTubeMetadata(url);
+      const ytApiKey = process.env.YOUTUBE_API_KEY;
+      const ytMetadata = await fetchYouTubeMetadata(url, ytApiKey);
       title = ytMetadata.title;
       thumbnailUrl = ytMetadata.thumbnailUrl;
 
       // Try to get transcription
       console.log("  Attempting to fetch transcription...");
-      const ytApiKey = process.env.YOUTUBE_API_KEY;
-      transcription = await fetchYouTubeTranscription(
-        ytMetadata.videoId,
-        ytApiKey
-      );
+      transcription = await fetchYouTubeTranscription(ytMetadata.videoId);
 
       // Use transcription or description for summary
       if (transcription) {
