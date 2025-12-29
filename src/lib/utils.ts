@@ -81,3 +81,54 @@ export function isYouTubeUrl(url: string): boolean {
   return /youtube\.com|youtu\.be/.test(url);
 }
 
+/**
+ * Generate a placeholder image as data URI
+ * Creates a gradient background with the first letter of the title
+ */
+export function generatePlaceholderImage(
+  title: string,
+  width: number = 200,
+  height: number = 150
+): string {
+  const firstLetter = title.charAt(0).toUpperCase() || "?";
+
+  // Generate a color based on the title (deterministic)
+  const hash = title.split("").reduce((acc, char) => {
+    return (acc << 5) - acc + char.charCodeAt(0);
+  }, 0);
+
+  // Generate two colors for gradient
+  const hue1 = Math.abs(hash) % 360;
+  const hue2 = (hue1 + 60) % 360;
+  const color1 = `hsl(${hue1}, 70%, 50%)`;
+  const color2 = `hsl(${hue2}, 70%, 60%)`;
+
+  // Create SVG as data URI
+  const svg = `
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${color2};stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grad)"/>
+      <text 
+        x="50%" 
+        y="50%" 
+        font-family="Arial, sans-serif" 
+        font-size="${Math.min(width, height) * 0.4}" 
+        font-weight="bold" 
+        fill="white" 
+        text-anchor="middle" 
+        dominant-baseline="central"
+        opacity="0.9"
+      >${firstLetter}</text>
+    </svg>
+  `.trim();
+
+  // Encode SVG for data URI
+  const encoded = encodeURIComponent(svg);
+  return `data:image/svg+xml;charset=utf-8,${encoded}`;
+}
+

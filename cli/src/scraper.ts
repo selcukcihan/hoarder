@@ -231,8 +231,9 @@ export class Scraper {
           continue;
         }
       } else {
-        // No dimensions - lower priority but still consider it
-        score += 5;
+        // No dimensions - very low priority, likely to be small
+        // Only consider if it has strong semantic indicators
+        score += 2;
       }
 
       // Check for semantic attributes that indicate importance
@@ -266,9 +267,14 @@ export class Scraper {
     }
 
     // Sort by score (highest first) and return the best candidate
+    // Only return images with a minimum score to avoid very small or low-quality images
     if (imageCandidates.length > 0) {
       imageCandidates.sort((a, b) => b.score - a.score);
-      return this.resolveUrl(imageCandidates[0].url, baseUrl);
+      const bestCandidate = imageCandidates[0];
+      // Only return if score is reasonable (has dimensions or strong semantic indicators)
+      if (bestCandidate.score >= 10 || (bestCandidate.width > 0 && bestCandidate.height > 0)) {
+        return this.resolveUrl(bestCandidate.url, baseUrl);
+      }
     }
 
     // No suitable image found - return null (caller can generate placeholder)

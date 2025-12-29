@@ -1,6 +1,6 @@
 ---
 import type { ArticleWithTags } from '../types/article';
-import { extractYouTubeVideoId, isYouTubeUrl } from '../lib/utils';
+import { extractYouTubeVideoId, isYouTubeUrl, generatePlaceholderImage } from '../lib/utils';
 
 interface Props {
   article: ArticleWithTags;
@@ -11,6 +11,7 @@ const { article } = Astro.props;
 // Check if this is a YouTube URL and extract video ID
 const isYouTube = isYouTubeUrl(article.url);
 const videoId = isYouTube ? extractYouTubeVideoId(article.url) : null;
+const placeholderImage = generatePlaceholderImage(article.title, 200, 150);
 ---
 
 <article class="article-detail">
@@ -43,6 +44,8 @@ const videoId = isYouTube ? extractYouTubeVideoId(article.url) : null;
         class="thumbnail"
         loading="lazy"
         referrerpolicy="no-referrer"
+        data-placeholder={placeholderImage}
+        data-title={article.title}
       />
     </div>
   )}
@@ -261,4 +264,54 @@ const videoId = isYouTube ? extractYouTubeVideoId(article.url) : null;
     }
   }
 </style>
+
+<script>
+  // Minimum image dimensions (width or height) to consider valid
+  const MIN_IMAGE_SIZE = 100;
+
+  // Check if an image is too small and replace with placeholder if needed
+  function checkImageSize(img: HTMLImageElement) {
+    const naturalWidth = img.naturalWidth;
+    const naturalHeight = img.naturalHeight;
+    
+    // If image hasn't loaded yet or dimensions are 0, wait
+    if (naturalWidth === 0 || naturalHeight === 0) {
+      return;
+    }
+
+    // Check if image is too small
+    if (naturalWidth < MIN_IMAGE_SIZE && naturalHeight < MIN_IMAGE_SIZE) {
+      const placeholder = img.getAttribute('data-placeholder');
+      const title = img.getAttribute('data-title') || '';
+      
+      if (placeholder) {
+        img.src = placeholder;
+        img.setAttribute('data-replaced', 'true');
+      }
+    }
+  }
+
+  // Check all thumbnail images on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const thumbnails = document.querySelectorAll<HTMLImageElement>('.article-detail .thumbnail');
+    
+    thumbnails.forEach((img) => {
+      // If image is already loaded, check immediately
+      if (img.complete) {
+        checkImageSize(img);
+      } else {
+        // Otherwise, wait for load event
+        img.addEventListener('load', () => checkImageSize(img));
+        img.addEventListener('error', () => {
+          // If image fails to load, use placeholder
+          const placeholder = img.getAttribute('data-placeholder');
+          if (placeholder) {
+            img.src = placeholder;
+            img.setAttribute('data-replaced', 'true');
+          }
+        });
+      }
+    });
+  });
+</script>
 
