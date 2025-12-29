@@ -51,3 +51,33 @@ export function getNearestMonday(dateStr: string): string {
   return monday.toISOString().split('T')[0];
 }
 
+/**
+ * Extract video ID from YouTube URL
+ * Supports various YouTube URL formats:
+ * - youtube.com/watch?v=VIDEO_ID
+ * - youtu.be/VIDEO_ID
+ * - youtube.com/embed/VIDEO_ID
+ */
+export function extractYouTubeVideoId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Check if a URL is a YouTube URL
+ */
+export function isYouTubeUrl(url: string): boolean {
+  return /youtube\.com|youtu\.be/.test(url);
+}
+
