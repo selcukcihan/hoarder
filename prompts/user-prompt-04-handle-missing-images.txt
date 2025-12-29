@@ -1,0 +1,2 @@
+There are a few improvements we should make. First of all, for some articles there might not be a suitable image in the linked page. A suitable image is one that is not too tiny. In case we don't find any suitable images in the linked page, what should we do, do you have any suggestions?
+

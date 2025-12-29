@@ -1,0 +1,4 @@
+Summarize the following content in 5-6 sentences (maximum 300 characters). Focus on the main points, key takeaways and insights:
+
+{content}
+

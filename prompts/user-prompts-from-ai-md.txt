@@ -1,0 +1,9 @@
+=== Prompt 1: Generate README ===
+Generate a new top level readme file, do not delete the astro stuff that can stay but leave them to the end
+
+=== Prompt 2: Create Prompts Folder ===
+Can you also create a top level folder named "prompts" and include all the prompts we have used so far from the beginning of the project.
+
+=== Prompt 3: Include User Prompts ===
+I want you to also include all the prompts I have given to you. Don't you have access to the history of all prompts I have given your agent?
+

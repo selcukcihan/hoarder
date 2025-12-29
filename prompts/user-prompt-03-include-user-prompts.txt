@@ -1,0 +1,2 @@
+I want you to also include all the prompts I have given to you. Don't you have access to the history of all prompts I have given your agent?
+

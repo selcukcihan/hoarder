@@ -1,0 +1,4 @@
+Provide a comprehensive summary of the following content in 5-10 sentences. Highlight key points, main ideas, and important details:
+
+{content}
+

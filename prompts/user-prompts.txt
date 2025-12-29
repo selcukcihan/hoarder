@@ -1,0 +1,85 @@
+=== Prompt 1: Generate README ===
+Generate a new top level readme file, do not delete the astro stuff that can stay but leave them to the end
+
+=== Prompt 2: Create Prompts Folder ===
+Can you also create a top level folder named "prompts" and include all the prompts we have used so far from the beginning of the project.
+
+=== Prompt 3: Include User Prompts ===
+I want you to also include all the prompts I have given to you. Don't you have access to the history of all prompts I have given your agent?
+
+=== Prompt 4: URL Deduplication ===
+I would like to dedupe archived pages based on their url. So if a url comes up again, we should update the database instead of creating another record with the same url.
+
+=== Prompt 5: Consolidate Migration ===
+No need to create a new migration. I'll just wipe out the whole database so please put everything into the first migration file and assume the db schema is empty.
+
+=== Prompt 6: Add Prompts to File ===
+Add these prompts into the prompts folder in a separate file
+
+=== Prompt 4: Local Dev with Production Database ===
+I would like to run the astro application locally but against the production database, how can I do that?
+
+=== Prompt 5: No Deployments, Just Remote DB Connection ===
+This works but it also deploys local changes to remote. I don't want any deployments, I just want my local dev server to connect to remote db and I still want to have the hot load and the changes in html etc. should reflect immediately.
+
+=== Prompt 6: Still Uploads Assets ===
+No it's not working, still uploads stuff
+
+=== Prompt 7: Add Prompts to Folder ===
+Add these prompts into the prompts folder in a separate file
+
+=== Prompt 4: Remove Content Section ===
+Can you remove the "Content" part of the article detail page? We already link to the original article so there is no need to repeat its contents here.
+
+=== Prompt 5: Add Prompts to Folder ===
+Add these prompts into the prompts folder in a separate file
+
+=== Prompt 4: Change Page Layout ===
+Let's change the page layout a little bit on the listing page. I want both the tag filter and week filter to be moved to the left of the page like in a classic blog layout. Because as it stands it pushes the articles to bottom of the page.
+
+=== Prompt 5: Remove Title from Listing Page ===
+Can we also remove the "Tech Web Hoarder" title from the listing page. Because it already appears in the header, we don't need to repeat it.
+
+=== Prompt 6: Add Prompts to File ===
+Add these prompts into the prompts folder in a separate file
+
+=== Prompt 4: Improve Tag Display ===
+Let's change the look and feel of the application a little. The tags are getting a bit out of control. As the number of tags increase, displaying them all at once will be troublesome. Can we display the top 20 tags and let the user search for tags as well?
+
+=== Prompt 5: Add Tag Counts ===
+Can you also put a small number on each tag to inidicate how many pages are tagged with that article?
+
+=== Prompt 4: Handle Missing Article Images ===
+There are a few improvements we should make. First of all, for some articles there might not be a suitable image in the linked page. A suitable image is one that is not too tiny. In case we don't find any suitable images in the linked page, what should we do, do you have any suggestions?
+
+=== Prompt 5: Improve Image Extraction Intelligence ===
+Can we make extractThumbnail method more intelligent. When I tried it on a page, it picked up an irrelevant image that was commented out as in
+
+<!-- <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /> -->
+
+=== Prompt 6: Restyle Application ===
+Can we restyle the application such that it appears slick, simple but elegant. Make sure there is good contrast between components and colors.
+
+=== Prompt 7: Fix Cloudflare Workers Error ===
+Getting this error [wrangler:error] TypeError: Cannot read properties of undefined (reading 'fetch')
+    at handle (file://[project-path]/dist/_worker.js/chunks/_@astrojs-ssr-adapter_fUXkFb18.mjs:1143:23)
+    at Object.fetch (file://[project-path]/dist/_worker.js/chunks/_@astrojs-ssr-adapter_fUXkFb18.mjs:1193:18)
+[wrangler:info] GET /_astro/_path_.D0TwnVqh.css 500 Internal Server Error (66ms)
+
+=== Prompt 8: Add Prompts to File ===
+Add these prompts into the prompts folder in a separate file
+
+=== Prompt 7: Fix Tag Search Box Overflow ===
+The filter by tag search box width seems too long because it is overflowing from the layout.
+
+=== Prompt 8: Increase Filter Column Width ===
+We can make the filter column (the week selector and tag filters on the left of the page) a bit larger in width.
+
+=== Prompt 9: Reduce Page Margins ===
+That's perfect, now please reduce the margins on the left and right of the page because there's too much empty space.
+
+=== Prompt 10: Fix Margin Issue ===
+Interesting, nothing has changed. There's still the same amount of space on both sides
+
+=== Prompt 11: Add Prompts to File ===
+Add these prompts into the prompts folder in a separate file

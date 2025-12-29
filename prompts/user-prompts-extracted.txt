@@ -1,0 +1,39 @@
+# User Prompts to AI Agent - Extracted Prompts
+
+## Prompt 1: Generate README
+Generate a new top level readme file, do not delete the astro stuff that can stay but leave them to the end
+
+## Prompt 2: Create Prompts Folder
+Can you also create a top level folder named "prompts" and include all the prompts we have used so far from the beginning of the project.
+
+## Prompt 3: Include User Prompts
+I want you to also include all the prompts I have given to you. Don't you have access to the history of all prompts I have given your agent?
+
+## Prompt 4: Handle Missing Article Images
+There are a few improvements we should make. First of all, for some articles there might not be a suitable image in the linked page. A suitable image is one that is not too tiny. In case we don't find any suitable images in the linked page, what should we do, do you have any suggestions?
+
+## Prompt 5: Improve Image Extraction Intelligence
+Can we make extractThumbnail method more intelligent. When I tried it on a page, it picked up an irrelevant image that was commented out as in
+
+<!-- <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br /> -->
+
+## Prompt 6: Replace "Link Archive" with "Tech Web Hoarder"
+Replace all occurences of "Link Archive" with Tech Web Hoarder
+
+## Prompt 7: Cap Title Length
+Put a cap on title length when rendering, I am seeing some very long titles. Cap it at a certain reasonable length.
+
+## Prompt 8: Add Prompts to Separate File
+Add these prompts into the prompts folder in a separate file
+
+## Prompt 9: Restyle Application
+Can we restyle the application such that it appears slick, simple but elegant. Make sure there is good contrast between components and colors.
+
+## Prompt 10: Fix Cloudflare Workers Error
+Getting this error [wrangler:error] TypeError: Cannot read properties of undefined (reading 'fetch')
+    at handle (file://[project-path]/dist/_worker.js/chunks/_@astrojs-ssr-adapter_fUXkFb18.mjs:1143:23)
+    at Object.fetch (file://[project-path]/dist/_worker.js/chunks/_@astrojs-ssr-adapter_fUXkFb18.mjs:1193:18)
+[wrangler:info] GET /_astro/_path_.D0TwnVqh.css 500 Internal Server Error (66ms)
+
+## Prompt 11: Add Prompts to File
+Add these prompts into the prompts folder in a separate file
