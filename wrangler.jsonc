@@ -18,6 +18,13 @@
 	"observability": {
 		"enabled": true
 	},
+	"workers_dev": true,
+  "routes": [
+    {
+      "pattern": "hoarder.selcukcihan.com",
+      "custom_domain": true
+    }
+  ],
 	/**
 	 * D1 Database Binding
 	 * To create a database, run: wrangler d1 create hoarder
