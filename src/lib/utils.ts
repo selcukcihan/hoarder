@@ -132,3 +132,16 @@ export function generatePlaceholderImage(
   return `data:image/svg+xml;charset=utf-8,${encoded}`;
 }
 
+/**
+ * Truncate a title to a maximum length, adding ellipsis if needed
+ * @param title The title to truncate
+ * @param maxLength Maximum length before truncation (default: 100)
+ * @returns Truncated title with ellipsis if needed
+ */
+export function truncateTitle(title: string, maxLength: number = 100): string {
+  if (title.length <= maxLength) {
+    return title;
+  }
+  return title.slice(0, maxLength - 3) + '...';
+}
+

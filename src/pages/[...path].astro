@@ -7,7 +7,7 @@ import ArticleDetail from '../components/ArticleDetail.astro';
 import WeekSelector from '../components/WeekSelector.astro';
 import TagFilter from '../components/TagFilter.astro';
 import { getArticlesByWeek, getArticleBySlug, getWeekStartDates, getAllTags, getArticlesByTag } from '../lib/db';
-import { isDateFormat, isValidMonday, getNearestMonday } from '../lib/utils';
+import { isDateFormat, isValidMonday, getNearestMonday, truncateTitle } from '../lib/utils';
 
 const path = Astro.params.path;
 const db = Astro.locals.runtime?.env?.DB;
@@ -96,7 +96,7 @@ if (isDate) {
     </div>
   </Layout>
 ) : (
-  <Layout title={article.title} description={article.short_summary}>
+  <Layout title={truncateTitle(article.title, 70)} description={article.short_summary}>
     <ArticleDetail article={article} />
   </Layout>
 )}

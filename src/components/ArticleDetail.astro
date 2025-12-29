@@ -1,6 +1,6 @@
 ---
 import type { ArticleWithTags } from '../types/article';
-import { extractYouTubeVideoId, isYouTubeUrl, generatePlaceholderImage } from '../lib/utils';
+import { extractYouTubeVideoId, isYouTubeUrl, generatePlaceholderImage, truncateTitle } from '../lib/utils';
 
 interface Props {
   article: ArticleWithTags;
@@ -12,11 +12,12 @@ const { article } = Astro.props;
 const isYouTube = isYouTubeUrl(article.url);
 const videoId = isYouTube ? extractYouTubeVideoId(article.url) : null;
 const placeholderImage = generatePlaceholderImage(article.title, 200, 150);
+const displayTitle = truncateTitle(article.title);
 ---
 
 <article class="article-detail">
   <header class="article-header">
-    <h1 class="title">{article.title}</h1>
+    <h1 class="title">{displayTitle}</h1>
     <div class="meta-info">
       <a href={article.url} target="_blank" rel="noopener noreferrer" class="original-link">
         View Original Article →

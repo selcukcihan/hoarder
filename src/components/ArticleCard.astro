@@ -1,6 +1,6 @@
 ---
 import type { ArticleWithTags } from '../types/article';
-import { generatePlaceholderImage } from '../lib/utils';
+import { generatePlaceholderImage, truncateTitle } from '../lib/utils';
 
 interface Props {
   article: ArticleWithTags;
@@ -8,6 +8,7 @@ interface Props {
 
 const { article } = Astro.props;
 const placeholderImage = generatePlaceholderImage(article.title, 200, 150);
+const displayTitle = truncateTitle(article.title);
 ---
 
 <article class="article-card">
@@ -26,7 +27,7 @@ const placeholderImage = generatePlaceholderImage(article.title, 200, 150);
   )}
   <div class="content">
     <h2 class="title">
-      <a href={`/${article.slug}`}>{article.title}</a>
+      <a href={`/${article.slug}`}>{displayTitle}</a>
     </h2>
     <p class="summary">{article.short_summary}</p>
     <div class="meta">
