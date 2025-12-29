@@ -1,222 +1,254 @@
 ---
 interface Props {
-	title?: string;
-	description?: string;
+  title?: string;
+  description?: string;
 }
 
-const { title = 'Tech Web Hoarder', description = 'Archive of useful links, blog posts, and videos' } = Astro.props;
+const {
+  title = "Tech Web Hoarder",
+  description = "Archive of useful links, blog posts, and videos",
+} = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={description} />
-		<title>{title}</title>
-	</head>
-	<body>
-		<header>
-			<nav>
-				<a href="/" class="logo">Tech Web Hoarder</a>
-				<button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-					<span class="theme-icon">☀️</span>
-				</button>
-			</nav>
-		</header>
-		<main>
-			<slot />
-		</main>
-		<footer>
-			<p>Tech Web Hoarder &copy; {new Date().getFullYear()}</p>
-		</footer>
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/" class="logo">Tech Web Hoarder</a>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          aria-label="Toggle theme"
+        >
+          <span class="theme-icon">☀️</span>
+        </button>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>Tech Web Hoarder &copy; {new Date().getFullYear()}</p>
+    </footer>
+  </body>
 </html>
 
 <style>
-	:global(html) {
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-		line-height: 1.6;
-		/* CSS Variables - Dark mode (default) */
-		--bg-primary: #1a1a1a;
-		--bg-secondary: #2d2d2d;
-		--bg-tertiary: #3a3a3a;
-		--text-primary: #e0e0e0;
-		--text-secondary: #b0b0b0;
-		--text-tertiary: #888;
-		--border-color: #404040;
-		--link-color: #4a9eff;
-		--link-hover: #6bb3ff;
-		--tag-bg: #3a3a3a;
-		--tag-hover: #4a4a4a;
-		--tag-active-bg: #0066cc;
-		--tag-active-hover: #0052a3;
-		--shadow: rgba(0, 0, 0, 0.3);
-		--shadow-hover: rgba(0, 0, 0, 0.4);
-	}
+  :global(html) {
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+      Cantarell, sans-serif;
+    line-height: 1.6;
+    /* CSS Variables - Dark mode (default) */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-tertiary: #888;
+    --border-color: #404040;
+    --link-color: #4a9eff;
+    --link-hover: #6bb3ff;
+    --tag-bg: #3a3a3a;
+    --tag-hover: #4a4a4a;
+    --tag-active-bg: #0066cc;
+    --tag-active-hover: #0052a3;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow-hover: rgba(0, 0, 0, 0.4);
+  }
 
-	:global(html.light-mode) {
-		/* CSS Variables - Light mode */
-		--bg-primary: #f5f5f5;
-		--bg-secondary: #ffffff;
-		--bg-tertiary: #f9f9f9;
-		--text-primary: #333;
-		--text-secondary: #666;
-		--text-tertiary: #888;
-		--border-color: #e0e0e0;
-		--link-color: #0066cc;
-		--link-hover: #0052a3;
-		--tag-bg: #f0f0f0;
-		--tag-hover: #e0e0e0;
-		--tag-active-bg: #0066cc;
-		--tag-active-hover: #0052a3;
-		--shadow: rgba(0, 0, 0, 0.1);
-		--shadow-hover: rgba(0, 0, 0, 0.15);
-	}
+  :global(html.light-mode) {
+    /* CSS Variables - Light mode */
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f9f9f9;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --text-tertiary: #888;
+    --border-color: #e0e0e0;
+    --link-color: #0066cc;
+    --link-hover: #0052a3;
+    --tag-bg: #f0f0f0;
+    --tag-hover: #e0e0e0;
+    --tag-active-bg: #0066cc;
+    --tag-active-hover: #0052a3;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+  }
 
-	:global(html) {
-		color: var(--text-primary);
-		transition: background-color 0.3s ease, color 0.3s ease;
-	}
+  :global(html) {
+    color: var(--text-primary);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
 
-	:global(body) {
-		margin: 0;
-		min-height: 100vh;
-		display: flex;
-		flex-direction: column;
-		background-color: var(--bg-primary);
-		transition: background-color 0.3s ease;
-	}
+  :global(body) {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary);
+    transition: background-color 0.3s ease;
+  }
 
-	header {
-		background-color: var(--bg-secondary);
-		border-bottom: 1px solid var(--border-color);
-		padding: 1rem;
-		transition: background-color 0.3s ease, border-color 0.3s ease;
-	}
+  header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
 
-	nav {
-		max-width: 1600px;
-		margin: 0 auto;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+  nav {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-	.logo {
-		font-size: 1.5rem;
-		font-weight: bold;
-		text-decoration: none;
-		color: var(--text-primary);
-		transition: color 0.3s ease;
-	}
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+  }
 
-	.theme-toggle {
-		background: var(--bg-tertiary);
-		border: 1px solid var(--border-color);
-		border-radius: 8px;
-		padding: 0.5rem 1rem;
-		cursor: pointer;
-		font-size: 1.2rem;
-		transition: background-color 0.3s ease, border-color 0.3s ease;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+  .theme-toggle {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-	.theme-toggle:hover {
-		background: var(--tag-hover);
-	}
+  .theme-toggle:hover {
+    background: var(--tag-hover);
+  }
 
-	.theme-icon {
-		display: inline-block;
-		transition: transform 0.3s ease;
-	}
+  .theme-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
 
-	main {
-		flex: 1;
-		max-width: 1600px;
-		width: 100%;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-	}
+  main {
+    flex: 1;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
 
-	footer {
-		background-color: var(--bg-secondary);
-		border-top: 1px solid var(--border-color);
-		padding: 1rem;
-		text-align: center;
-		color: var(--text-secondary);
-		font-size: 0.9rem;
-		transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-	}
+  footer {
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease;
+  }
 
-	@media (max-width: 768px) {
-		main {
-			padding: 1rem;
-		}
+  @media (max-width: 768px) {
+    main {
+      padding: 1rem 0;
+      width: 100%;
+      max-width: 100%;
+    }
 
-		header, footer {
-			padding: 1rem;
-		}
-	}
+    header,
+    footer {
+      padding: 1rem;
+    }
+
+    :global(body) {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+    }
+  }
 </style>
 
 <script is:inline>
-	// Set theme immediately to prevent flash of unstyled content
-	(function() {
-		try {
-			if (typeof document !== 'undefined' && typeof localStorage !== 'undefined') {
-				const html = document.documentElement;
-				const savedTheme = localStorage.getItem('theme');
-				
-				// If no saved theme, default to dark mode
-				if (savedTheme === null) {
-					html.classList.remove('light-mode');
-					localStorage.setItem('theme', 'dark');
-				} else if (savedTheme === 'light') {
-					html.classList.add('light-mode');
-				} else {
-					html.classList.remove('light-mode');
-				}
-			}
-		} catch (e) {
-			// Silently fail if localStorage is not available
-		}
-	})();
+  // Set theme immediately to prevent flash of unstyled content
+  (function () {
+    try {
+      if (
+        typeof document !== "undefined" &&
+        typeof localStorage !== "undefined"
+      ) {
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem("theme");
+
+        // If no saved theme, default to dark mode
+        if (savedTheme === null) {
+          html.classList.remove("light-mode");
+          localStorage.setItem("theme", "dark");
+        } else if (savedTheme === "light") {
+          html.classList.add("light-mode");
+        } else {
+          html.classList.remove("light-mode");
+        }
+      }
+    } catch (e) {
+      // Silently fail if localStorage is not available
+    }
+  })();
 </script>
 
 <script>
-	// Update theme toggle button icon and set up click handler
-	(function() {
-		const html = document.documentElement;
-		
-		// Update theme toggle button icon
-		// Icon shows what mode you'll switch TO (not current mode)
-		function updateThemeIcon() {
-			const toggle = document.getElementById('theme-toggle');
-			const icon = toggle?.querySelector('.theme-icon');
-			if (icon) {
-				// If in dark mode, show sun (switch to light)
-				// If in light mode, show moon (switch to dark)
-				icon.textContent = html.classList.contains('light-mode') ? '🌙' : '☀️';
-			}
-		}
+  // Update theme toggle button icon and set up click handler
+  (function () {
+    const html = document.documentElement;
 
-		// Theme toggle handler
-		const themeToggle = document.getElementById('theme-toggle');
-		if (themeToggle) {
-			themeToggle.addEventListener('click', () => {
-				html.classList.toggle('light-mode');
-				const isLight = html.classList.contains('light-mode');
-				localStorage.setItem('theme', isLight ? 'light' : 'dark');
-				updateThemeIcon();
-			});
-		}
+    // Update theme toggle button icon
+    // Icon shows what mode you'll switch TO (not current mode)
+    function updateThemeIcon() {
+      const toggle = document.getElementById("theme-toggle");
+      const icon = toggle?.querySelector(".theme-icon");
+      if (icon) {
+        // If in dark mode, show sun (switch to light)
+        // If in light mode, show moon (switch to dark)
+        icon.textContent = html.classList.contains("light-mode") ? "🌙" : "☀️";
+      }
+    }
 
-		// Initialize icon on load
-		updateThemeIcon();
-	})();
+    // Theme toggle handler
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+      themeToggle.addEventListener("click", () => {
+        html.classList.toggle("light-mode");
+        const isLight = html.classList.contains("light-mode");
+        localStorage.setItem("theme", isLight ? "light" : "dark");
+        updateThemeIcon();
+      });
+    }
+
+    // Initialize icon on load
+    updateThemeIcon();
+  })();
 </script>

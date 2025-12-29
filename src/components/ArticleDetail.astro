@@ -96,6 +96,10 @@ const displayTitle = truncateTitle(article.title);
     padding: 2rem;
     box-shadow: 0 2px 4px var(--shadow);
     transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .article-header {
@@ -145,9 +149,12 @@ const displayTitle = truncateTitle(article.title);
 
   .thumbnail {
     max-width: 100%;
+    width: 100%;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 2px 8px var(--shadow);
+    display: block;
+    box-sizing: border-box;
   }
 
   .video-container {
@@ -158,6 +165,9 @@ const displayTitle = truncateTitle(article.title);
     overflow: hidden;
     border-radius: 8px;
     box-shadow: 0 2px 8px var(--shadow);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .youtube-player {
@@ -171,6 +181,11 @@ const displayTitle = truncateTitle(article.title);
 
   .content {
     line-height: 1.8;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
   .content section {
@@ -219,6 +234,11 @@ const displayTitle = truncateTitle(article.title);
     border-radius: 4px;
     line-height: 1.8;
     transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
   .transcription p {
@@ -253,15 +273,28 @@ const displayTitle = truncateTitle(article.title);
   @media (max-width: 768px) {
     .article-detail {
       padding: 1rem;
+      margin: 0;
+      border-radius: 0;
     }
 
     .title {
       font-size: 1.5rem;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .meta-info {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .content {
+      overflow-x: hidden;
+    }
+
+    .content * {
+      max-width: 100%;
+      box-sizing: border-box;
     }
   }
 </style>
