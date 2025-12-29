@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 80" width="400" height="80">
+  <!-- Stack layers with orangish color -->
+  <!-- Bottom layer -->
+  <rect x="10" y="50" width="60" height="12" rx="2" fill="#FF8C42" opacity="0.9" transform="skewY(-2)"/>
+  <!-- Middle layer -->
+  <rect x="12" y="38" width="60" height="12" rx="2" fill="#FF7A33" opacity="0.95" transform="skewY(-2)"/>
+  <!-- Top layer with magnifier -->
+  <rect x="14" y="26" width="60" height="12" rx="2" fill="#FF6B1A" transform="skewY(-2)"/>
+  
+  <!-- Magnifying glass on top layer (blue/greenish) -->
+  <g transform="translate(50, 28)">
+    <!-- Glass circle -->
+    <circle cx="0" cy="0" r="8" fill="none" stroke="#4ECDC4" stroke-width="2.5"/>
+    <!-- Handle -->
+    <line x1="5.5" y1="5.5" x2="12" y2="12" stroke="#4ECDC4" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Text "hoarder" -->
+  <text x="90" y="45" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="32" font-weight="600" fill="currentColor" class="logo-text">hoarder</text>
+</svg>
+

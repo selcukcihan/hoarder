@@ -15,7 +15,7 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>
@@ -23,7 +23,107 @@ const {
   <body>
     <header>
       <nav>
-        <a href="/" class="logo">Tech Web Hoarder</a>
+        <a href="/" class="logo">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 550 80"
+            class="logo-image"
+            aria-label="Tech Web Hoarder"
+          >
+            <!-- TWH Initials formed by stacked layers -->
+            <!-- Letter T - Top layer (brightest orange) -->
+            <g transform="translate(10, 20)">
+              <!-- Horizontal bar of T -->
+              <rect x="0" y="0" width="28" height="10" rx="1.5" fill="#FF6B1A"
+              ></rect>
+              <!-- Vertical bar of T -->
+              <rect x="9" y="10" width="10" height="28" rx="1.5" fill="#FF6B1A"
+              ></rect>
+            </g>
+
+            <!-- Letter W - Middle layer (medium orange) -->
+            <g transform="translate(55, 28)">
+              <!-- Left leg -->
+              <rect
+                x="0"
+                y="0"
+                width="7"
+                height="22"
+                rx="1.5"
+                fill="#FF7A33"
+                opacity="0.95"></rect>
+              <!-- Left middle -->
+              <rect
+                x="7"
+                y="10"
+                width="7"
+                height="12"
+                rx="1.5"
+                fill="#FF7A33"
+                opacity="0.95"></rect>
+              <!-- Right middle -->
+              <rect
+                x="14"
+                y="6"
+                width="7"
+                height="16"
+                rx="1.5"
+                fill="#FF7A33"
+                opacity="0.95"></rect>
+              <!-- Right leg -->
+              <rect
+                x="21"
+                y="0"
+                width="7"
+                height="22"
+                rx="1.5"
+                fill="#FF7A33"
+                opacity="0.95"></rect>
+            </g>
+
+            <!-- Letter H - Bottom layer (lighter orange) -->
+            <g transform="translate(100, 36)">
+              <!-- Left vertical bar -->
+              <rect
+                x="0"
+                y="0"
+                width="9"
+                height="26"
+                rx="1.5"
+                fill="#FF8C42"
+                opacity="0.9"></rect>
+              <!-- Horizontal bar -->
+              <rect
+                x="9"
+                y="9"
+                width="18"
+                height="9"
+                rx="1.5"
+                fill="#FF8C42"
+                opacity="0.9"></rect>
+              <!-- Right vertical bar -->
+              <rect
+                x="27"
+                y="0"
+                width="9"
+                height="26"
+                rx="1.5"
+                fill="#FF8C42"
+                opacity="0.9"></rect>
+            </g>
+
+            <!-- Text "Tech Web Hoarder" -->
+            <text
+              x="150"
+              y="45"
+              font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+              font-size="28"
+              font-weight="600"
+              fill="currentColor"
+              class="logo-text">Tech Web Hoarder</text
+            >
+          </svg>
+        </a>
         <button
           id="theme-toggle"
           class="theme-toggle"
@@ -38,6 +138,17 @@ const {
     </main>
     <footer>
       <p>Tech Web Hoarder &copy; {new Date().getFullYear()}</p>
+      <p>
+        Created by <strong>Selçuk Cihan</strong> |{" "}
+        <a
+          href="https://github.com/selcukcihan/hoarder"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer-link"
+        >
+          View on GitHub
+        </a>
+      </p>
     </footer>
   </body>
 </html>
@@ -119,11 +230,18 @@ const {
   }
 
   .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     text-decoration: none;
     color: var(--text-primary);
     transition: color 0.3s ease;
+  }
+
+  .logo-image {
+    height: 3.5rem;
+    width: auto;
+    display: block;
   }
 
   .theme-toggle {
@@ -173,6 +291,25 @@ const {
       color 0.3s ease;
   }
 
+  footer p {
+    margin: 0.5rem 0;
+  }
+
+  .footer-link {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-link:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+
+  footer strong {
+    color: var(--text-primary);
+  }
+
   @media (max-width: 768px) {
     main {
       padding: 1rem 0;
@@ -183,6 +320,10 @@ const {
     header,
     footer {
       padding: 1rem;
+    }
+
+    .logo-image {
+      height: 2.5rem;
     }
 
     :global(body) {
