@@ -1,13 +1,76 @@
 ---
+import { getLatestArticle, type D1Database } from "../lib/db";
+import type { ArticleWithTags } from "../types/article";
+
 interface Props {
   title?: string;
   description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogUrl?: string;
+  article?: ArticleWithTags;
 }
 
 const {
   title = "Tech Web Hoarder",
   description = "Archive of useful links, blog posts, and videos",
+  ogTitle,
+  ogDescription,
+  ogImage,
+  ogUrl,
+  article,
 } = Astro.props;
+
+// Get site base URL
+const siteUrl = Astro.url.origin;
+const currentUrl = Astro.url.href;
+
+// Determine OG values - use provided props, fallback to latest article, or defaults
+let finalOgTitle = ogTitle || title;
+let finalOgDescription = ogDescription || description;
+let finalOgImage = ogImage;
+let finalOgUrl = ogUrl || currentUrl;
+
+// If no article or OG props provided, try to get latest article
+if (!article && !ogTitle && !ogImage) {
+  const db = Astro.locals.runtime?.env?.DB as D1Database | undefined;
+  if (db && typeof db.prepare === "function") {
+    try {
+      const latestArticle = await getLatestArticle(db);
+      if (latestArticle) {
+        finalOgTitle = latestArticle.title;
+        finalOgDescription = latestArticle.short_summary || description;
+        finalOgImage = latestArticle.thumbnail_url || undefined;
+        finalOgUrl = `${siteUrl}/${latestArticle.slug}`;
+      }
+    } catch (error) {
+      // Silently fail if database is not available
+      console.error("Error fetching latest article for OG tags:", error);
+    }
+  }
+}
+
+// If article is provided, use it for OG tags
+if (article && !ogTitle && !ogImage) {
+  finalOgTitle = article.title;
+  finalOgDescription = article.short_summary || description;
+  finalOgImage = article.thumbnail_url || undefined;
+  finalOgUrl = `${siteUrl}/${article.slug}`;
+}
+
+// Ensure image URL is absolute and not a data URI (data URIs don't work well for OG tags)
+if (finalOgImage) {
+  // Skip data URIs for OG tags
+  if (finalOgImage.startsWith("data:")) {
+    finalOgImage = undefined;
+  } else if (!finalOgImage.startsWith("http")) {
+    // Convert relative URLs to absolute
+    finalOgImage = finalOgImage.startsWith("/")
+      ? `${siteUrl}${finalOgImage}`
+      : `${siteUrl}/${finalOgImage}`;
+  }
+}
 ---
 
 <!doctype html>
@@ -19,6 +82,26 @@ const {
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={finalOgUrl} />
+    <meta property="og:title" content={finalOgTitle} />
+    <meta property="og:description" content={finalOgDescription} />
+    {finalOgImage && <meta property="og:image" content={finalOgImage} />}
+    <meta property="og:site_name" content="Tech Web Hoarder" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={finalOgUrl} />
+    <meta name="twitter:title" content={finalOgTitle} />
+    <meta name="twitter:description" content={finalOgDescription} />
+    {finalOgImage && <meta name="twitter:image" content={finalOgImage} />}
+
+    <!-- LinkedIn (uses Open Graph tags, but adding specific ones for better compatibility) -->
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    {finalOgImage && <meta property="og:image:alt" content={finalOgTitle} />}
   </head>
   <body>
     <header>

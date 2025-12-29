@@ -201,6 +201,40 @@ export async function getTopTags(db: D1Database, limit: number = 20): Promise<Ta
 }
 
 /**
+ * Get the latest article (most recently created)
+ */
+export async function getLatestArticle(
+  db: D1Database
+): Promise<ArticleWithTags | null> {
+  const result = await db
+    .prepare(
+      `SELECT a.*, 
+       GROUP_CONCAT(t.id || ':' || t.name) as tag_data
+       FROM articles a
+       LEFT JOIN article_tags at ON a.id = at.article_id
+       LEFT JOIN tags t ON at.tag_id = t.id
+       GROUP BY a.id
+       ORDER BY a.created_at DESC
+       LIMIT 1`
+    )
+    .first<Article & { tag_data: string | null }>();
+
+  if (!result) {
+    return null;
+  }
+
+  return {
+    ...result,
+    tags: result.tag_data
+      ? result.tag_data.split(',').map((tagStr) => {
+          const [id, name] = tagStr.split(':');
+          return { id: parseInt(id), name };
+        })
+      : [],
+  } as ArticleWithTags;
+}
+
+/**
  * Check if slug exists
  */
 export async function slugExists(

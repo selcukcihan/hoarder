@@ -96,7 +96,11 @@ if (isDate) {
     </div>
   </Layout>
 ) : (
-  <Layout title={truncateTitle(article.title, 70)} description={article.short_summary}>
+  <Layout 
+    title={truncateTitle(article.title, 70)} 
+    description={article.short_summary}
+    article={article}
+  >
     <ArticleDetail article={article} />
   </Layout>
 )}
