@@ -5,7 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import WeekSelector from '../components/WeekSelector.astro';
 import TagFilter from '../components/TagFilter.astro';
-import { getArticlesByWeek, getWeekStartDates, getAllTags, getTopTags, getArticlesByTag } from '../lib/db';
+import { getArticlesByWeek, getWeekStartDates, getAllTags, getTopTags, getArticlesByTag, getArticlesByTags } from '../lib/db';
 import { getWeekStartDate, isValidMonday } from '../lib/utils';
 
 // Get current week start date
@@ -13,7 +13,7 @@ const currentWeek = getWeekStartDate();
 
 // Get query params
 const url = Astro.url;
-const tagParam = url.searchParams.get('tag');
+const tagParams = url.searchParams.getAll('tag');
 
 // Get database from runtime
 const db = Astro.locals.runtime?.env?.DB;
@@ -31,14 +31,14 @@ const [weeks, allTags, topTags] = await Promise.all([
 
 // Get articles
 let articles;
-if (tagParam) {
-  articles = await getArticlesByTag(db, tagParam, currentWeek);
+if (tagParams.length > 0) {
+  articles = await getArticlesByTags(db, tagParams, currentWeek);
 } else {
   articles = await getArticlesByWeek(db, currentWeek);
 }
 
-const pageTitle = tagParam 
-  ? `Archive - ${tagParam} (${currentWeek})`
+const pageTitle = tagParams.length > 0 
+  ? `Archive - ${tagParams.slice(0, 3).join(', ')}${tagParams.length > 3 ? ` +${tagParams.length - 3}` : ''} (${currentWeek})`
   : `Archive - Week of ${currentWeek}`;
 ---
 
@@ -54,7 +54,7 @@ const pageTitle = tagParam
           <WeekSelector currentWeek={currentWeek} weeks={weeks} />
           
           {allTags.length > 0 && (
-            <TagFilter allTags={allTags} topTags={topTags} currentTag={tagParam || undefined} />
+            <TagFilter allTags={allTags} topTags={topTags} selectedTags={tagParams} />
           )}
         </div>
       </aside>

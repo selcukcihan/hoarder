@@ -2,14 +2,37 @@
 interface Props {
   allTags: Array<{ id: number; name: string; count: number }>;
   topTags: Array<{ id: number; name: string; count: number }>;
-  currentTag?: string;
+  selectedTags: string[];
 }
 
-const { allTags, topTags, currentTag } = Astro.props;
+const { allTags, topTags, selectedTags } = Astro.props;
+const selectedTagsSet = new Set(selectedTags);
 ---
 
 <div class="tag-filter">
   <h3>Filter by Tag</h3>
+  
+  {selectedTags.length > 0 && (
+    <div class="selected-tags-section">
+      <div class="selected-tags-header">
+        <span class="selected-tags-count">{selectedTags.length} selected</span>
+        <button class="clear-all-btn" id="clear-all-tags">Clear all</button>
+      </div>
+      <div class="selected-tags" id="selected-tags-container">
+        {selectedTags.map((tagName) => (
+          <button
+            class="selected-tag"
+            data-tag={tagName}
+            type="button"
+          >
+            <span class="selected-tag-name">{tagName}</span>
+            <span class="selected-tag-remove">×</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+  
   <div class="search-container">
     <input
       type="text"
@@ -19,29 +42,44 @@ const { allTags, topTags, currentTag } = Astro.props;
     />
   </div>
   <div class="tags" id="tags-container">
-    <a href="/" class={`tag ${!currentTag ? 'active' : ''}`}>All</a>
+    <button
+      type="button"
+      class={`tag ${selectedTags.length === 0 ? 'active' : ''}`}
+      data-tag=""
+    >
+      All
+    </button>
     {topTags.map((tag) => (
-      <a
-        href={`/?tag=${tag.name}`}
-        class={`tag ${currentTag === tag.name ? 'active' : ''}`}
+      <button
+        type="button"
+        class={`tag ${selectedTagsSet.has(tag.name) ? 'active' : ''}`}
+        data-tag={tag.name}
         data-tag-name={tag.name.toLowerCase()}
       >
         {tag.name}
         <span class="tag-count">{tag.count}</span>
-      </a>
+      </button>
     ))}
   </div>
   <div class="all-tags" id="all-tags-container" style="display: none;">
-    <a href="/" class={`tag ${!currentTag ? 'active' : ''}`} data-tag-name="all">All</a>
+    <button
+      type="button"
+      class={`tag ${selectedTags.length === 0 ? 'active' : ''}`}
+      data-tag=""
+      data-tag-name="all"
+    >
+      All
+    </button>
     {allTags.map((tag) => (
-      <a
-        href={`/?tag=${tag.name}`}
-        class={`tag ${currentTag === tag.name ? 'active' : ''}`}
+      <button
+        type="button"
+        class={`tag ${selectedTagsSet.has(tag.name) ? 'active' : ''}`}
+        data-tag={tag.name}
         data-tag-name={tag.name.toLowerCase()}
       >
         {tag.name}
         <span class="tag-count">{tag.count}</span>
-      </a>
+      </button>
     ))}
   </div>
 </div>
@@ -65,6 +103,91 @@ const { allTags, topTags, currentTag } = Astro.props;
     transition: color 0.3s ease;
   }
 
+  .selected-tags-section {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .selected-tags-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .selected-tags-count {
+    color: var(--text-secondary);
+  }
+
+  .clear-all-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .clear-all-btn:hover {
+    background: var(--tag-hover);
+    color: var(--text-primary);
+  }
+
+  .selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .selected-tag {
+    padding: 0.4rem 0.6rem 0.4rem 0.8rem;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    background: var(--tag-active-bg);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background-color 0.2s;
+  }
+
+  .selected-tag:hover {
+    background: var(--tag-active-hover);
+  }
+
+  .selected-tag-name {
+    white-space: nowrap;
+  }
+
+  .selected-tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    transition: background-color 0.2s;
+  }
+
+  .selected-tag-remove:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
   .tags {
     display: flex;
     flex-wrap: wrap;
@@ -80,6 +203,8 @@ const { allTags, topTags, currentTag } = Astro.props;
     border: 2px solid var(--border-color);
     background: var(--bg-secondary);
     color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
   }
 
   .tag:hover {
@@ -145,23 +270,81 @@ const { allTags, topTags, currentTag } = Astro.props;
   const searchInput = document.getElementById('tag-search') as HTMLInputElement;
   const tagsContainer = document.getElementById('tags-container') as HTMLElement;
   const allTagsContainer = document.getElementById('all-tags-container') as HTMLElement;
-  const allTags = Array.from(allTagsContainer.querySelectorAll('.tag')) as HTMLAnchorElement[];
+  const clearAllBtn = document.getElementById('clear-all-tags') as HTMLButtonElement;
+  const allTagsButtons = Array.from(allTagsContainer.querySelectorAll('.tag')) as HTMLButtonElement[];
 
+  // Get current selected tags from URL
+  function getSelectedTags(): string[] {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.getAll('tag');
+  }
+
+  // Update URL with selected tags
+  function updateUrlWithTags(tags: string[]): void {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('tag');
+    tags.forEach(tag => url.searchParams.append('tag', tag));
+    window.location.href = url.toString();
+  }
+
+  // Toggle tag selection
+  function toggleTag(tagName: string): void {
+    const selectedTags = getSelectedTags();
+    const index = selectedTags.indexOf(tagName);
+    
+    if (index > -1) {
+      selectedTags.splice(index, 1);
+    } else {
+      selectedTags.push(tagName);
+    }
+    
+    updateUrlWithTags(selectedTags);
+  }
+
+  // Clear all tags
+  function clearAllTags(): void {
+    updateUrlWithTags([]);
+  }
+
+  // Handle tag click
+  function handleTagClick(e: Event): void {
+    const tag = (e.currentTarget as HTMLElement).closest('.tag') as HTMLButtonElement;
+    if (!tag) return;
+    
+    const tagName = tag.getAttribute('data-tag');
+    if (!tagName) {
+      // "All" button clicked - clear all tags
+      clearAllTags();
+      return;
+    }
+    
+    toggleTag(tagName);
+  }
+
+  // Handle selected tag remove
+  function handleSelectedTagRemove(e: Event): void {
+    const selectedTag = (e.currentTarget as HTMLElement).closest('.selected-tag') as HTMLButtonElement;
+    if (!selectedTag) return;
+    
+    const tagName = selectedTag.getAttribute('data-tag');
+    if (tagName) {
+      toggleTag(tagName);
+    }
+  }
+
+  // Search functionality
   if (searchInput && tagsContainer && allTagsContainer) {
     searchInput.addEventListener('input', (e) => {
       const searchTerm = (e.target as HTMLInputElement).value.toLowerCase().trim();
       
       if (searchTerm === '') {
-        // Show top tags, hide all tags
         tagsContainer.style.display = 'flex';
         allTagsContainer.style.display = 'none';
       } else {
-        // Hide top tags, show filtered tags
         tagsContainer.style.display = 'none';
         allTagsContainer.style.display = 'flex';
         
-        // Filter tags based on search term
-        allTags.forEach((tag) => {
+        allTagsButtons.forEach((tag) => {
           const tagName = tag.getAttribute('data-tag-name') || '';
           if (tagName.includes(searchTerm)) {
             tag.style.display = 'inline-block';
@@ -171,6 +354,23 @@ const { allTags, topTags, currentTag } = Astro.props;
         });
       }
     });
+  }
+
+  // Add click handlers to tag buttons
+  const allTagButtons = document.querySelectorAll('.tags .tag, .all-tags .tag');
+  allTagButtons.forEach(button => {
+    button.addEventListener('click', handleTagClick);
+  });
+
+  // Add click handlers to selected tag remove buttons
+  const selectedTagRemoveButtons = document.querySelectorAll('.selected-tag-remove');
+  selectedTagRemoveButtons.forEach(button => {
+    button.addEventListener('click', handleSelectedTagRemove);
+  });
+
+  // Add click handler to clear all button
+  if (clearAllBtn) {
+    clearAllBtn.addEventListener('click', clearAllTags);
   }
 </script>
 

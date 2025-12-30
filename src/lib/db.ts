@@ -157,6 +157,51 @@ export async function getArticlesByTag(
 }
 
 /**
+ * Get articles filtered by multiple tags (OR logic - article must have ANY of the tags)
+ */
+export async function getArticlesByTags(
+  db: D1Database,
+  tagNames: string[],
+  weekStartDate?: string
+): Promise<ArticleWithTags[]> {
+  if (tagNames.length === 0) {
+    return [];
+  }
+
+  const placeholders = tagNames.map(() => '?').join(',');
+  let query = `SELECT DISTINCT a.*, 
+       GROUP_CONCAT(t.id || ':' || t.name) as tag_data
+       FROM articles a
+       INNER JOIN article_tags at ON a.id = at.article_id
+       INNER JOIN tags t ON at.tag_id = t.id
+       WHERE t.name IN (${placeholders})`;
+
+  const binds: unknown[] = [...tagNames];
+
+  if (weekStartDate) {
+    query += ` AND a.week_start_date = ?`;
+    binds.push(weekStartDate);
+  }
+
+  query += ` GROUP BY a.id ORDER BY a.created_at DESC`;
+
+  const articles = await db
+    .prepare(query)
+    .bind(...binds)
+    .all<Article & { tag_data: string | null }>();
+
+  return articles.results.map((article) => ({
+    ...article,
+    tags: article.tag_data
+      ? article.tag_data.split(',').map((tagStr) => {
+          const [id, name] = tagStr.split(':');
+          return { id: parseInt(id), name };
+        })
+      : [],
+  })) as ArticleWithTags[];
+}
+
+/**
  * Get all tags with usage counts
  */
 export async function getAllTags(db: D1Database): Promise<TagWithCount[]> {
