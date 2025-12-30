@@ -31,6 +31,7 @@ export class Scraper {
         url,
         gotoOptions: {
           waitUntil: "networkidle0",
+          timeout: 60000,
         },
       });
 
@@ -272,7 +273,10 @@ export class Scraper {
       imageCandidates.sort((a, b) => b.score - a.score);
       const bestCandidate = imageCandidates[0];
       // Only return if score is reasonable (has dimensions or strong semantic indicators)
-      if (bestCandidate.score >= 10 || (bestCandidate.width > 0 && bestCandidate.height > 0)) {
+      if (
+        bestCandidate.score >= 10 ||
+        (bestCandidate.width > 0 && bestCandidate.height > 0)
+      ) {
         return this.resolveUrl(bestCandidate.url, baseUrl);
       }
     }
