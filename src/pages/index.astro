@@ -9,7 +9,7 @@ import { getArticlesByWeek, getWeekStartDates, getAllTags, getTopTags, getArticl
 import { getWeekStartDate, isValidMonday } from '../lib/utils';
 
 // Get current week start date
-const currentWeek = getWeekStartDate();
+const calendarCurrentWeek = getWeekStartDate();
 
 // Get query params
 const url = Astro.url;
@@ -28,6 +28,15 @@ const [weeks, allTags, topTags] = await Promise.all([
   getAllTags(db),
   getTopTags(db, 20),
 ]);
+
+// Determine which week to display:
+// - If current week has data, use it
+// - Otherwise, use the latest week that has data
+const currentWeek = weeks.length > 0 && weeks.includes(calendarCurrentWeek)
+  ? calendarCurrentWeek
+  : weeks.length > 0
+  ? weeks[0] // Latest week with data (already sorted DESC)
+  : calendarCurrentWeek; // Fallback to current week if no data exists
 
 // Get articles
 let articles;
@@ -68,7 +77,7 @@ const pageTitle = tagParams.length > 0
           </div>
         ) : (
           <div class="empty-state">
-            <p>No articles found for this week{tagParam ? ` with tag "${tagParam}"` : ''}.</p>
+            <p>No articles found for this week{tagParams.length > 0 ? ` with tags "${tagParams.join(', ')}"` : ''}.</p>
           </div>
         )}
       </main>
