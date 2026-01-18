@@ -6,7 +6,7 @@ import ArticleCard from '../components/ArticleCard.astro';
 import ArticleDetail from '../components/ArticleDetail.astro';
 import WeekSelector from '../components/WeekSelector.astro';
 import TagFilter from '../components/TagFilter.astro';
-import { getArticlesByWeek, getArticleBySlug, getWeekStartDates, getAllTags, getArticlesByTag } from '../lib/db';
+import { getArticlesByWeek, getArticleBySlug, getWeekStartDates, getAllTags, getTopTags, getArticlesByTag, getArticlesByTags } from '../lib/db';
 import { isDateFormat, isValidMonday, getNearestMonday, truncateTitle } from '../lib/utils';
 
 const path = Astro.params.path;
@@ -24,10 +24,11 @@ if (!path) {
 const isDate = isDateFormat(path);
 
 let weekDate: string | null = null;
-let tagParam: string | null = null;
+let tagParams: string[] = [];
 let articles: any[] = [];
 let weeks: string[] = [];
-let allTags: string[] = [];
+let allTags: Array<{ id: number; name: string; count: number }> = [];
+let topTags: Array<{ id: number; name: string; count: number }> = [];
 let pageTitle = '';
 let article: any = null;
 
@@ -43,23 +44,24 @@ if (isDate) {
 
   // Get query params
   const url = Astro.url;
-  tagParam = url.searchParams.get('tag');
+  tagParams = url.searchParams.getAll('tag');
 
   // Get all weeks and tags for navigation
-  [weeks, allTags] = await Promise.all([
+  [weeks, allTags, topTags] = await Promise.all([
     getWeekStartDates(db),
     getAllTags(db),
+    getTopTags(db, 20),
   ]);
 
   // Get articles
-  if (tagParam) {
-    articles = await getArticlesByTag(db, tagParam, weekDate);
+  if (tagParams.length > 0) {
+    articles = await getArticlesByTags(db, tagParams, weekDate);
   } else {
     articles = await getArticlesByWeek(db, weekDate);
   }
 
-  pageTitle = tagParam 
-    ? `Archive - ${tagParam} (${weekDate})`
+  pageTitle = tagParams.length > 0 
+    ? `Archive - ${tagParams.slice(0, 3).join(', ')}${tagParams.length > 3 ? ` +${tagParams.length - 3}` : ''} (${weekDate})`
     : `Archive - Week of ${weekDate}`;
 } else {
   // Handle article detail page (slug)
@@ -74,25 +76,35 @@ if (isDate) {
 {isDate ? (
   <Layout title={pageTitle}>
     <div class="archive-page">
-      <h1>Tech Web Hoarder</h1>
-      
-      <WeekSelector currentWeek={weekDate!} weeks={weeks} />
-      
-      {allTags.length > 0 && (
-        <TagFilter tags={allTags} currentTag={tagParam || undefined} />
-      )}
+      <div class="archive-layout">
+        <aside class="sidebar">
+          <button class="filter-toggle" id="filter-toggle" aria-label="Toggle filters" aria-expanded="false">
+            <span class="filter-toggle-text">Filters</span>
+            <span class="filter-toggle-icon">▼</span>
+          </button>
+          <div class="filter-content" id="filter-content">
+            <WeekSelector currentWeek={weekDate!} weeks={weeks} />
+            
+            {allTags.length > 0 && (
+              <TagFilter allTags={allTags} topTags={topTags} selectedTags={tagParams} />
+            )}
+          </div>
+        </aside>
 
-      {articles.length > 0 ? (
-        <div class="articles-list">
-          {articles.map((article) => (
-            <ArticleCard article={article} />
-          ))}
-        </div>
-      ) : (
-        <div class="empty-state">
-          <p>No articles found for this week{tagParam ? ` with tag "${tagParam}"` : ''}.</p>
-        </div>
-      )}
+        <main class="content">
+          {articles.length > 0 ? (
+            <div class="articles-list">
+              {articles.map((article) => (
+                <ArticleCard article={article} />
+              ))}
+            </div>
+          ) : (
+            <div class="empty-state">
+              <p>No articles found for this week{tagParams.length > 0 ? ` with tags "${tagParams.join(', ')}"` : ''}.</p>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   </Layout>
 ) : (
@@ -110,16 +122,40 @@ if (isDate) {
     max-width: 100%;
   }
 
-  h1 {
-    font-size: 2.5rem;
-    margin: 0 0 2rem 0;
-    color: var(--text-primary);
-    transition: color 0.3s ease;
+  .archive-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Filter toggle button - hidden on desktop */
+  .filter-toggle {
+    display: none;
+  }
+
+  .filter-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .content {
+    min-width: 0;
   }
 
   .articles-list {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
   }
 
   .empty-state {
@@ -131,9 +167,158 @@ if (isDate) {
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  @media (max-width: 768px) {
-    h1 {
-      font-size: 2rem;
+  @media (max-width: 968px) {
+    .archive-layout {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+      margin: -1rem 0 0 0;
+      padding: 0;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 2px 4px var(--shadow);
+      overflow: visible;
+      height: auto;
+      max-height: none;
+    }
+
+    /* Show filter toggle on mobile */
+    .filter-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border: none;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      gap: 0.5rem;
+      box-sizing: border-box;
+    }
+
+    .filter-toggle:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .filter-toggle:active {
+      background: var(--tag-hover);
+    }
+
+    .filter-toggle-text {
+      flex: 1;
+      text-align: left;
+    }
+
+    .filter-toggle-icon {
+      font-size: 0.9rem;
+      transition: transform 0.3s ease;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .filter-toggle[aria-expanded="true"] .filter-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Collapsible filter content */
+    .filter-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      gap: 0;
+      display: block;
+    }
+
+    .filter-content.expanded {
+      max-height: 70vh; /* 70% of viewport height - allows scrolling within filters */
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: max-height 0.5s ease-in;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+
+    .filter-content > * {
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .filter-content > *:first-child {
+      border-top: none;
+    }
+
+    .filter-content > *:last-child {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Adjust content spacing on mobile */
+    .content {
+      padding: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Ensure body/html can scroll properly */
+    :global(body) {
+      overflow-x: hidden;
     }
   }
 </style>
+
+<script>
+  // Mobile filter toggle functionality
+  (function() {
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterContent = document.getElementById('filter-content');
+    
+    if (filterToggle && filterContent) {
+      // Check if we're on mobile (matches the media query breakpoint)
+      function isMobile() {
+        return window.matchMedia('(max-width: 968px)').matches;
+      }
+
+      // Toggle filter visibility
+      function toggleFilters() {
+        const isExpanded = filterToggle.getAttribute('aria-expanded') === 'true';
+        const newState = !isExpanded;
+        
+        filterToggle.setAttribute('aria-expanded', String(newState));
+        filterContent.classList.toggle('expanded', newState);
+      }
+
+      // Initialize state based on screen size
+      function initializeFilters() {
+        if (isMobile()) {
+          // On mobile, start collapsed
+          filterToggle.setAttribute('aria-expanded', 'false');
+          filterContent.classList.remove('expanded');
+        } else {
+          // On desktop, always show
+          filterToggle.setAttribute('aria-expanded', 'true');
+          filterContent.classList.add('expanded');
+        }
+      }
+
+      // Set up toggle handler
+      filterToggle.addEventListener('click', toggleFilters);
+
+      // Handle window resize
+      window.addEventListener('resize', initializeFilters);
+
+      // Initialize on load
+      initializeFilters();
+    }
+  })();
+</script>
