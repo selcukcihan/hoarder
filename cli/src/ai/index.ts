@@ -1,5 +1,7 @@
 // AI Provider exports
 
-export type { AIProvider } from "./provider.js";
-export { GoogleGeminiProvider } from "./google-gemini.js";
-export type { GoogleGeminiConfig } from "./google-gemini.js";
+export type { AIProvider } from "./provider";
+export { GoogleGeminiProvider } from "./google-gemini";
+export type { GoogleGeminiConfig } from "./google-gemini";
+export { OllamaProvider } from "./ollama";
+export type { OllamaConfig } from "./ollama";

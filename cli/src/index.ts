@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 import { D1Client } from "./database.js";
 import { Scraper } from "./scraper.js";
 import { Summarizer } from "./summarizer.js";
-import { GoogleGeminiProvider } from "./ai/index.js";
+import { GoogleGeminiProvider, OllamaProvider } from "./ai/index.js";
 import {
   fetchYouTubeMetadata,
   fetchYouTubeTranscription,
@@ -202,7 +202,8 @@ async function ingest(urls: string[]) {
 
   // Create AI provider and summarizer
   const aiProvider = new GoogleGeminiProvider(config.gemini);
-  const summarizer = new Summarizer(aiProvider);
+  const ollamaProvider = new OllamaProvider({ model: "gemma3:1b" });
+  const summarizer = new Summarizer(ollamaProvider);
 
   // Get existing slugs to avoid conflicts
   console.log("Loading existing slugs...");

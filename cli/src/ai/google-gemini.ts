@@ -1,7 +1,7 @@
 // Google Gemini AI Provider implementation
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { AIProvider } from "./provider.js";
+import type { AIProvider } from "./provider";
 
 export interface GoogleGeminiConfig {
   apiKey: string;

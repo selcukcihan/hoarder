@@ -1,6 +1,6 @@
 // Utility functions for CLI
 
-import slugify from 'slugify';
+import slugify from "slugify";
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -28,7 +28,7 @@ export function generateSlug(title: string): string {
  */
 export function ensureUniqueSlug(
   slug: string,
-  existingSlugs: Set<string>
+  existingSlugs: Set<string>,
 ): string {
   let uniqueSlug = slug;
   let counter = 1;
@@ -50,8 +50,8 @@ export function getWeekStartDate(date: Date = new Date()): string {
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
   const monday = new Date(d.setDate(diff));
-  
-  return monday.toISOString().split('T')[0];
+
+  return monday.toISOString().split("T")[0];
 }
 
 /**
@@ -80,18 +80,24 @@ export function isValidMonday(dateStr: string): boolean {
 /**
  * Detect content type from URL
  */
-export function detectContentType(url: string): 'article' | 'video' | 'blog_post' | 'other' {
+export function detectContentType(
+  url: string,
+): "article" | "video" | "blog_post" | "other" {
   const urlLower = url.toLowerCase();
-  
-  if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) {
-    return 'video';
+
+  if (urlLower.includes("youtube.com") || urlLower.includes("youtu.be")) {
+    return "video";
   }
-  
-  if (urlLower.includes('blog') || urlLower.includes('medium.com') || urlLower.includes('dev.to')) {
-    return 'blog_post';
+
+  if (
+    urlLower.includes("blog") ||
+    urlLower.includes("medium.com") ||
+    urlLower.includes("dev.to")
+  ) {
+    return "blog_post";
   }
-  
-  return 'article';
+
+  return "article";
 }
 
 /**
@@ -101,20 +107,24 @@ export function sanitizeTag(tag: string): string {
   return tag
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters except spaces and hyphens
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
 }
 
 /**
  * Sanitize and filter tags array
  */
-export function sanitizeTags(tags: string[], maxTags: number = 10): string[] {
+export function sanitizeTags(
+  tags: string[],
+  maxTags: number = 10,
+  maxTagLength: number = 50,
+): string[] {
   return tags
     .map(sanitizeTag)
-    .filter(tag => tag.length > 0) // Remove empty tags
+    .filter((tag) => tag.length > 0) // Remove empty tags
+    .filter((tag) => tag.length <= maxTagLength) // Remove tags that exceed character limit
     .filter((tag, index, self) => self.indexOf(tag) === index) // Remove duplicates
     .slice(0, maxTags); // Limit to maxTags
 }
-
