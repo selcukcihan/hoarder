@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import { D1Client } from "./database.js";
 import { Scraper } from "./scraper.js";
 import { Summarizer } from "./summarizer.js";
+import { GoogleGeminiProvider } from "./ai/index.js";
 import {
   fetchYouTubeMetadata,
   fetchYouTubeTranscription,
@@ -46,7 +47,7 @@ function loadConfig(): Config {
     console.error("Error: Missing required environment variables:");
     missingVars.forEach((varName) => console.error(`  - ${varName}`));
     console.error(
-      "\nPlease create a .env file in the cli directory with the required variables."
+      "\nPlease create a .env file in the cli directory with the required variables.",
     );
     process.exit(1);
   }
@@ -76,7 +77,7 @@ async function processUrl(
   db: D1Client,
   scraper: Scraper,
   summarizer: Summarizer,
-  existingSlugs: Set<string>
+  existingSlugs: Set<string>,
 ): Promise<void> {
   console.log(`\nProcessing: ${url}`);
 
@@ -110,7 +111,7 @@ async function processUrl(
       } else {
         contentForSummary = ytMetadata.description || "Video content";
         console.log(
-          "  Using video description for summary (transcription unavailable)"
+          "  Using video description for summary (transcription unavailable)",
         );
       }
     } else {
@@ -177,7 +178,7 @@ async function processUrl(
     if (tags.length > 0) {
       console.log(`  Linking ${tags.length} tag(s)...`);
       const tagIds = await Promise.all(
-        tags.map((tag) => db.getOrCreateTag(tag))
+        tags.map((tag) => db.getOrCreateTag(tag)),
       );
       await db.linkArticleToTags(articleId, tagIds);
     }
@@ -198,7 +199,10 @@ async function ingest(urls: string[]) {
   const config = loadConfig();
   const db = new D1Client(config.database);
   const scraper = new Scraper(config.cloudflare);
-  const summarizer = new Summarizer(config.gemini);
+
+  // Create AI provider and summarizer
+  const aiProvider = new GoogleGeminiProvider(config.gemini);
+  const summarizer = new Summarizer(aiProvider);
 
   // Get existing slugs to avoid conflicts
   console.log("Loading existing slugs...");

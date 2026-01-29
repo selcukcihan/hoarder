@@ -1,7 +1,7 @@
-// Google Gemini API client for summarization
+// Summarization service using AI providers
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { Config, Summaries } from "./types";
+import type { AIProvider } from "./ai/provider.js";
+import type { Summaries } from "./types";
 import {
   getShortSummaryPrompt,
   getExtendedSummaryPrompt,
@@ -9,26 +9,20 @@ import {
 } from "./prompts";
 
 export class Summarizer {
-  private genAI: GoogleGenerativeAI;
-  private model: string;
+  private aiProvider: AIProvider;
 
-  constructor(config: Config["gemini"]) {
-    this.genAI = new GoogleGenerativeAI(config.apiKey);
-    this.model = config.model || "gemini-3-flash-preview";
+  constructor(aiProvider: AIProvider) {
+    this.aiProvider = aiProvider;
   }
 
   /**
    * Generate short summary (2-3 sentences, max 200 characters)
    */
   async generateShortSummary(content: string): Promise<string> {
-    const model = this.genAI.getGenerativeModel({ model: this.model });
-
     const prompt = getShortSummaryPrompt(content);
 
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      let summary = response.text().trim();
+      let summary = await this.aiProvider.generateText(prompt);
 
       // Ensure it's within character limit
       if (summary.length > 200) {
@@ -46,14 +40,10 @@ export class Summarizer {
    * Generate extended summary (5-7 sentences)
    */
   async generateExtendedSummary(content: string): Promise<string> {
-    const model = this.genAI.getGenerativeModel({ model: this.model });
-
     const prompt = getExtendedSummaryPrompt(content);
 
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text().trim();
+      return await this.aiProvider.generateText(prompt);
     } catch (error) {
       console.error("Error generating extended summary:", error);
       throw error;
@@ -76,14 +66,10 @@ export class Summarizer {
    * Generate tags from content (max 10 tags)
    */
   async generateTags(content: string): Promise<string[]> {
-    const model = this.genAI.getGenerativeModel({ model: this.model });
-
     const prompt = getTagGenerationPrompt(content);
 
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const tagsText = response.text().trim();
+      const tagsText = await this.aiProvider.generateText(prompt);
 
       // Parse comma-separated tags
       const tags = tagsText
