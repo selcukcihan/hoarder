@@ -54,6 +54,7 @@ export class Summarizer {
    * Generate both summaries
    */
   async generateSummaries(content: string): Promise<Summaries> {
+    console.log("Generating summaries for content:", content);
     const [short, extended] = await Promise.all([
       this.generateShortSummary(content),
       this.generateExtendedSummary(content),

@@ -202,7 +202,7 @@ async function ingest(urls: string[]) {
 
   // Create AI provider and summarizer
   const aiProvider = new GoogleGeminiProvider(config.gemini);
-  const ollamaProvider = new OllamaProvider({ model: "gemma3:1b" });
+  const ollamaProvider = new OllamaProvider({ model: "granite3.2:8b" });
   const summarizer = new Summarizer(ollamaProvider);
 
   // Get existing slugs to avoid conflicts
