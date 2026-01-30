@@ -2,6 +2,8 @@
 
 import { Cloudflare } from "cloudflare";
 import TurndownService from "turndown";
+import { writeFileSync } from "fs";
+import { join } from "path";
 import type { Config, ScrapedContent } from "./types";
 
 const turndownService = new TurndownService({
@@ -39,7 +41,17 @@ export class Scraper {
         throw new Error("No HTML content returned from Browser Rendering API");
       }
 
+      // Debug: Write HTML to file
+      const htmlDebugPath = join(process.cwd(), "debug-html.html");
+      writeFileSync(htmlDebugPath, html, "utf-8");
+      console.log(`Debug: HTML written to ${htmlDebugPath}`);
+
       const markdown = turndownService.turndown(html);
+
+      // Debug: Write markdown to file
+      const markdownDebugPath = join(process.cwd(), "debug-markdown.md");
+      writeFileSync(markdownDebugPath, markdown, "utf-8");
+      console.log(`Debug: Markdown written to ${markdownDebugPath}`);
 
       // Extract title
       const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
@@ -57,7 +69,7 @@ export class Scraper {
 
       // Extract meta description
       const descriptionMatch = html.match(
-        /<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i
+        /<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i,
       );
       const description = descriptionMatch ? descriptionMatch[1].trim() : null;
 
@@ -151,13 +163,13 @@ export class Scraper {
   private extractThumbnail(
     html: string,
     baseUrl: string,
-    title?: string
+    title?: string,
   ): string | null {
     const minImageSize = 200; // Minimum width or height in pixels
 
     // Try Open Graph image first
     const ogImageMatch = html.match(
-      /<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i
+      /<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i,
     );
     if (ogImageMatch) {
       const url = this.resolveUrl(ogImageMatch[1], baseUrl);
@@ -167,7 +179,7 @@ export class Scraper {
 
     // Try Twitter card image
     const twitterImageMatch = html.match(
-      /<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i
+      /<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i,
     );
     if (twitterImageMatch) {
       const url = this.resolveUrl(twitterImageMatch[1], baseUrl);
@@ -240,7 +252,7 @@ export class Scraper {
       // Check for semantic attributes that indicate importance
       if (
         /class=["'][^"']*(?:featured|hero|main|cover|thumbnail|post-image|article-image)[^"']*["']/i.test(
-          imgTag
+          imgTag,
         )
       ) {
         score += 30;
@@ -292,7 +304,7 @@ export class Scraper {
   generatePlaceholder(
     title: string,
     width: number = 200,
-    height: number = 150
+    height: number = 150,
   ): string {
     const firstLetter = title.charAt(0).toUpperCase() || "?";
 

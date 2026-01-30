@@ -201,7 +201,7 @@ async function ingest(urls: string[]) {
   const scraper = new Scraper(config.cloudflare);
 
   // Create AI provider and summarizer
-  const aiProvider = new GoogleGeminiProvider(config.gemini);
+  // const aiProvider = new GoogleGeminiProvider(config.gemini);
   const ollamaProvider = new OllamaProvider({ model: "granite3.2:8b" });
   const summarizer = new Summarizer(ollamaProvider);
 

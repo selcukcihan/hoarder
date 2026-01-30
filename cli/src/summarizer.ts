@@ -22,7 +22,7 @@ export class Summarizer {
     const prompt = getShortSummaryPrompt(content);
 
     try {
-      let summary = await this.aiProvider.generateText(prompt);
+      let summary = await this.aiProvider.generateText(prompt, "short-summary");
 
       // Ensure it's within character limit
       if (summary.length > 200) {
@@ -43,7 +43,7 @@ export class Summarizer {
     const prompt = getExtendedSummaryPrompt(content);
 
     try {
-      return await this.aiProvider.generateText(prompt);
+      return await this.aiProvider.generateText(prompt, "extended-summary");
     } catch (error) {
       console.error("Error generating extended summary:", error);
       throw error;
@@ -54,7 +54,6 @@ export class Summarizer {
    * Generate both summaries
    */
   async generateSummaries(content: string): Promise<Summaries> {
-    console.log("Generating summaries for content:", content);
     const [short, extended] = await Promise.all([
       this.generateShortSummary(content),
       this.generateExtendedSummary(content),
@@ -70,7 +69,7 @@ export class Summarizer {
     const prompt = getTagGenerationPrompt(content);
 
     try {
-      const tagsText = await this.aiProvider.generateText(prompt);
+      const tagsText = await this.aiProvider.generateText(prompt, "tags");
 
       // Parse comma-separated tags
       const tags = tagsText
