@@ -29,7 +29,9 @@ const displayTitle = truncateTitle(article.title);
     <h2 class="title">
       <a href={`/${article.slug}`}>{displayTitle}</a>
     </h2>
-    <p class="summary">{article.short_summary}</p>
+    <p class="summary">
+      <a href={`/${article.slug}`} class="summary-link">{article.short_summary}</a>
+    </p>
     <div class="meta">
       <a href={article.url} target="_blank" rel="noopener noreferrer" class="original-link">
         View Original →
@@ -99,6 +101,17 @@ const displayTitle = truncateTitle(article.title);
     margin: 0 0 1rem 0;
     flex: 1;
     transition: color 0.3s ease;
+  }
+
+  .summary-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .summary-link:hover {
+    color: var(--link-hover);
   }
 
   .meta {
