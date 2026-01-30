@@ -2,6 +2,7 @@
 
 import { Cloudflare } from "cloudflare";
 import TurndownService from "turndown";
+import * as cheerio from "cheerio";
 import { writeFileSync } from "fs";
 import { join } from "path";
 import type { Config, ScrapedContent } from "./types";
@@ -46,7 +47,11 @@ export class Scraper {
       writeFileSync(htmlDebugPath, html, "utf-8");
       console.log(`Debug: HTML written to ${htmlDebugPath}`);
 
-      const markdown = turndownService.turndown(html);
+      // Extract main content from HTML, removing scripts, styles, and non-content elements
+      const cleanedHtml = this.extractMainContent(html);
+      
+      // Convert cleaned HTML to markdown
+      const markdown = turndownService.turndown(cleanedHtml);
 
       // Debug: Write markdown to file
       const markdownDebugPath = join(process.cwd(), "debug-markdown.md");
@@ -83,6 +88,88 @@ export class Scraper {
       console.error(`Error scraping ${url}:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Extract main content from HTML, removing scripts, styles, and non-content elements
+   */
+  private extractMainContent(html: string): string {
+    const $ = cheerio.load(html);
+
+    // Remove script and style tags completely
+    $("script").remove();
+    $("style").remove();
+    $("noscript").remove();
+
+    // Remove common non-content elements
+    $("header").remove();
+    $("footer").remove();
+    $("nav").remove();
+    $("aside").remove();
+    $("menu").remove();
+
+    // Try to find main content in order of preference
+    // 1. Try <article> tag
+    let content = $("article").first();
+    if (content.length > 0) {
+      return content.html() || "";
+    }
+
+    // 2. Try <main> tag
+    content = $("main").first();
+    if (content.length > 0) {
+      return content.html() || "";
+    }
+
+    // 3. Try common content selectors
+    const contentSelectors = [
+      '[role="article"]',
+      '[role="main"]',
+      ".content",
+      ".post",
+      ".article",
+      ".entry",
+      ".post-content",
+      ".article-content",
+      ".entry-content",
+      "#content",
+      "#main-content",
+      "#post-content",
+      "#article-content",
+    ];
+
+    for (const selector of contentSelectors) {
+      content = $(selector).first();
+      if (content.length > 0) {
+        return content.html() || "";
+      }
+    }
+
+    // 4. Fallback: extract body content but remove common non-content elements
+    const body = $("body");
+    if (body.length > 0) {
+      // Remove more non-content elements
+      body.find(".sidebar").remove();
+      body.find(".widget").remove();
+      body.find(".advertisement").remove();
+      body.find(".ad").remove();
+      body.find("[class*='nav']").remove();
+      body.find("[class*='menu']").remove();
+      body.find("[class*='header']").remove();
+      body.find("[class*='footer']").remove();
+      body.find("[id*='nav']").remove();
+      body.find("[id*='menu']").remove();
+      body.find("[id*='header']").remove();
+      body.find("[id*='footer']").remove();
+
+      const bodyHtml = body.html();
+      if (bodyHtml && bodyHtml.trim().length > 0) {
+        return bodyHtml;
+      }
+    }
+
+    // 5. Last resort: return cleaned HTML (scripts/styles already removed above)
+    return $.html();
   }
 
   /**
