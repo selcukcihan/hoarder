@@ -4,9 +4,10 @@ import { getWeekStartDate } from '../lib/utils';
 interface Props {
   currentWeek: string;
   weeks: string[];
+  tagFilterActive?: boolean;
 }
 
-const { currentWeek, weeks } = Astro.props;
+const { currentWeek, weeks, tagFilterActive = false } = Astro.props;
 const todayWeekStart = getWeekStartDate();
 
 function formatWeekLabel(weekDate: string): string {
@@ -19,17 +20,25 @@ function formatWeekLabel(weekDate: string): string {
 ---
 
 <div class="week-selector">
-  <label for="week-select">Select Week:</label>
-  <select id="week-select" onchange="window.location.href = this.value">
-    <option value="/" selected={currentWeek === todayWeekStart}>
-      Current Week
-    </option>
-    {weeks.map((week) => (
-      <option value={`/${week}`} selected={week === currentWeek}>
-        {formatWeekLabel(week)}
+  <label for={tagFilterActive ? undefined : 'week-select'}>Select Week:</label>
+  {tagFilterActive ? (
+    <>
+      <p class="week-selector-note" aria-live="polite">
+        All weeks — not applied when filtering by tag
+      </p>
+    </>
+  ) : (
+    <select id="week-select" onchange="window.location.href = this.value">
+      <option value="/" selected={currentWeek === todayWeekStart}>
+        Current Week
       </option>
-    ))}
-  </select>
+      {weeks.map((week) => (
+        <option value={`/${week}`} selected={week === currentWeek}>
+          {formatWeekLabel(week)}
+        </option>
+      ))}
+    </select>
+  )}
 </div>
 
 <style>
@@ -47,6 +56,17 @@ function formatWeekLabel(weekDate: string): string {
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: var(--text-primary);
+    transition: color 0.3s ease;
+  }
+
+  .week-selector-note {
+    margin: 0;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
     transition: color 0.3s ease;
   }
 

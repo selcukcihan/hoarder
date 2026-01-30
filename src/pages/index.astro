@@ -29,7 +29,7 @@ const [weeks, allTags, topTags] = await Promise.all([
   getTopTags(db, 20),
 ]);
 
-// Determine which week to display:
+// Determine which week to display (only used when NOT filtering by tag):
 // - If current week has data, use it
 // - Otherwise, use the latest week that has data
 const currentWeek = weeks.length > 0 && weeks.includes(calendarCurrentWeek)
@@ -38,16 +38,18 @@ const currentWeek = weeks.length > 0 && weeks.includes(calendarCurrentWeek)
   ? weeks[0] // Latest week with data (already sorted DESC)
   : calendarCurrentWeek; // Fallback to current week if no data exists
 
-// Get articles
+const tagFilterActive = tagParams.length > 0;
+
+// Get articles: when a tag is selected, show all articles with that tag (no week filter)
 let articles;
-if (tagParams.length > 0) {
-  articles = await getArticlesByTags(db, tagParams, currentWeek);
+if (tagFilterActive) {
+  articles = await getArticlesByTags(db, tagParams);
 } else {
   articles = await getArticlesByWeek(db, currentWeek);
 }
 
-const pageTitle = tagParams.length > 0 
-  ? `Archive - ${tagParams.slice(0, 3).join(', ')}${tagParams.length > 3 ? ` +${tagParams.length - 3}` : ''} (${currentWeek})`
+const pageTitle = tagFilterActive
+  ? `Archive - ${tagParams.slice(0, 3).join(', ')}${tagParams.length > 3 ? ` +${tagParams.length - 3}` : ''}`
   : `Archive - Week of ${currentWeek}`;
 ---
 
@@ -60,7 +62,7 @@ const pageTitle = tagParams.length > 0
           <span class="filter-toggle-icon">▼</span>
         </button>
         <div class="filter-content" id="filter-content">
-          <WeekSelector currentWeek={currentWeek} weeks={weeks} />
+          <WeekSelector currentWeek={currentWeek} weeks={weeks} tagFilterActive={tagFilterActive} />
           
           {allTags.length > 0 && (
             <TagFilter allTags={allTags} topTags={topTags} selectedTags={tagParams} />
@@ -77,7 +79,7 @@ const pageTitle = tagParams.length > 0
           </div>
         ) : (
           <div class="empty-state">
-            <p>No articles found for this week{tagParams.length > 0 ? ` with tags "${tagParams.join(', ')}"` : ''}.</p>
+            <p>{tagFilterActive ? `No articles found with tags "${tagParams.join(', ')}".` : `No articles found for this week.`}</p>
           </div>
         )}
       </main>
